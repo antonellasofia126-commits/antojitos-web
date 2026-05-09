@@ -57,8 +57,47 @@
 
 <script>
     const datosMenu = [
-        { cat: "Pollo a la Broaster", desc: "Acompañado de ensalada y papa a la francesa", items: [{n: "1 Pieza", p: "8.000"}, {n: "2 Piezas", p: "12.000"}, {n: "4 Piezas", p: "21.000"}] },
-        { cat: "Hamburguesas", desc: "Vegetales, papitas y pan artesanal", items: [{n: "Antojitos", p: "9.000"}, {n: "Trifásica", p: "19.000", mixta: true}] }
+        {
+            cat: "Pollo a la Broaster",
+            desc: "Acompañado de ensalada y papa a la francesa",
+            items: [
+                {n: "1 Pieza de Pollo", p: "8.000"},
+                {n: "2 Piezas de Pollo", p: "12.000"},
+                {n: "3 Piezas de Pollo", p: "16.000"},
+                {n: "4 Piezas de Pollo", p: "21.000"},
+                {n: "8 Piezas de Pollo", p: "40.000"}
+            ]
+        },
+        {
+            cat: "Salchipapas",
+            desc: "Papas, salchicha, vegetales, queso y proteínas",
+            items: [
+                {n: "Personal: 'Ta bien'", p: "8.000"},
+                {n: "Mediana: 'Gustico'", p: "13.000"},
+                {n: "Súper Antojitos", p: "19.000"}
+            ]
+        },
+        {
+            cat: "Hamburguesas",
+            desc: "Incluyen vegetales, papitas, salsas y pan artesanal",
+            items: [
+                {n: "Mini (Croqueta)", p: "6.000"},
+                {n: "Mini (Pollo)", p: "7.000"},
+                {n: "Mini (Carne Mechada)", p: "8.000"},
+                {n: "Antojitos", p: "9.000"},
+                {n: "Momo", p: "13.000", mixta: true},
+                {n: "Trifásica", p: "19.000", mixta: true}
+            ]
+        },
+        {
+            cat: "Perros Calientes",
+            desc: "Pan, salchicha, papitas, salsas y adicionales",
+            items: [
+                {n: "Hambruno", p: "5.000"},
+                {n: "Especial", p: "9.000"},
+                {n: "Americano", p: "13.000"}
+            ]
+        }
     ];
 
     const menuContenedor = document.getElementById('menu-digital');
@@ -68,14 +107,26 @@
             const idUnico = `prod-${sIdx}-${iIdx}`;
             htmlSeccion += `
                 <div class="producto" id="${idUnico}">
-                    <div class="titulo-fila"><span class="titulo">${item.n}</span><span class="precio">${item.p}</span></div>
+                    <div class="titulo-fila">
+                        <span class="titulo">${item.n}</span>
+                        <span class="precio">${item.p}</span>
+                    </div>
                     <p class="descripcion">${seccion.desc}</p>
                     <div class="personalizar">
-                        ${item.mixta ? `<span class="seccion-label">Proteína</span><div class="grid-opciones"><label><input type="radio" name="prot-${idUnico}" value="Mixta" checked> Mixta</label><label><input type="radio" name="prot-${idUnico}" value="Carne"> Carne</label></div>` : ''}
-                        <span class="seccion-label">¿Sin qué?</span>
+                        ${item.mixta ? `
+                            <span class="seccion-label">Elegir Proteína</span>
+                            <div class="grid-opciones" style="margin-bottom:10px;">
+                                <label><input type="radio" name="prot-${idUnico}" value="Mixta" checked> Mixta</label>
+                                <label><input type="radio" name="prot-${idUnico}" value="Carne"> Carne</label>
+                                <label><input type="radio" name="prot-${idUnico}" value="Pollo"> Pollo</label>
+                            </div>
+                        ` : ''}
+                        <span class="seccion-label">¿Sin qué lo desea?</span>
                         <div class="grid-opciones">
-                            <label><input type="checkbox" class="opt" value="Sin Cebolla"> Sin Cebolla</label>
+                            <label><input type="checkbox" class="opt" value="Sin Vegetales"> Sin Vegetales</label>
                             <label><input type="checkbox" class="opt" value="Sin Salsas"> Sin Salsas</label>
+                            <label><input type="checkbox" class="opt" value="Sin Cebolla"> Sin Cebolla</label>
+                            <label><input type="checkbox" class="opt" value="Sin Papas"> Sin Papas</label>
                         </div>
                     </div>
                     <button class="btn-pedir" onclick="window.enviarAFirebase('${item.n}', '${idUnico}')">Pedir ahora</button>
@@ -120,10 +171,10 @@
         push(pedidosRef, {
             producto: nombre,
             proteina: prot ? prot.value : 'N/A',
-            detalles: extras || 'Completo',
-            hora: new Date().toLocaleTimeString()
+            detalles: extras || 'Preparación completa',
+            hora: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
-        alert("¡Pedido enviado!");
+        alert("¡Pedido enviado a Carlos!");
     };
 
     onChildAdded(pedidosRef, (snapshot) => {
@@ -136,14 +187,20 @@
             ticket.className = 'comanda';
             ticket.innerHTML = `
                 <div class="comanda-n"><span>ORDEN #${id.slice(-4)}</span> <span>${p.hora}</span></div>
-                <div style="font-size:14px;"><strong>${p.producto}</strong><br><small>${p.proteina}</small><br><span style="color:#d4af37">${p.detalles}</span></div>
-                <button class="btn-check" onclick="window.despachar('${id}', this)">LISTO</button>`;
+                <div style="font-size:14px;">
+                    <strong>${p.producto}</strong><br>
+                    ${p.proteina !== 'N/A' ? `<small>Proteína: ${p.proteina}</small><br>` : ''}
+                    <span style="color:#d4af37">${p.detalles}</span>
+                </div>
+                <button class="btn-check" onclick="window.despachar('${id}', this)">DESPACHAR / LISTO</button>`;
             lista.prepend(ticket);
             document.getElementById('audio-notif').play().catch(() => {});
         }
     });
 
-    window.despachar = (id, btn) => { remove(ref(db, `pedidos/${id}`)).then(() => btn.parentElement.remove()); };
+    window.despachar = (id, btn) => { 
+        remove(ref(db, `pedidos/${id}`)).then(() => btn.parentElement.remove()); 
+    };
 </script>
 </body>
 </html>

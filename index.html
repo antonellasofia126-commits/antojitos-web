@@ -3,313 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - Menú Profesional de Carlos</title>
+    <title>Antojitos - El Menú de Carlos</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { 
-            --oro: #d4af37; 
-            --negro: #000; 
-            --gris-oscuro: #0a0a0a; 
-            --gris-claro: #1f1f1f; 
-            --verde: #2ecc71; 
-            --blanco: #ffffff;
-        }
-
-        body { 
-            background-color: var(--negro); 
-            color: var(--oro); 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            padding: 0;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container { 
-            width: 100%; 
-            max-width: 550px; 
-            background: var(--gris-oscuro); 
-            min-height: 100vh;
-            border-left: 2px solid var(--oro);
-            border-right: 2px solid var(--oro);
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* Sistema de Pantallas */
+        :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; }
+        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        
+        /* FUERZA BRUTA PARA PANTALLAS */
         .seccion { display: none !important; }
         .activa { display: block !important; }
 
-        h1, h2 { text-align: center; color: var(--oro); text-transform: uppercase; letter-spacing: 3px; }
-        .subtitulo { text-align: center; color: #888; font-size: 0.9em; margin-bottom: 20px; }
-
-        /* Estilos de Entrada */
-        .login-box { margin-top: 50px; text-align: center; }
-        input[type="text"] { 
-            width: 100%; padding: 15px; border: 1px solid var(--oro); 
-            background: #111; color: white; border-radius: 10px; 
-            font-size: 1.1em; box-sizing: border-box;
-        }
-
-        /* Catálogo de Productos */
-        .categoria-header { 
-            background: var(--oro); color: black; padding: 5px 15px; 
-            border-radius: 5px; margin: 25px 0 15px 0; font-weight: bold;
-            display: inline-block;
-        }
-
-        .producto-card { 
-            background: var(--gris-claro); border-radius: 12px; padding: 15px; 
-            margin-bottom: 15px; border: 1px solid #333;
-            display: flex; justify-content: space-between; align-items: center;
-            transition: 0.3s;
-        }
-
-        .producto-card:hover { border-color: var(--oro); }
-        .producto-info h4 { margin: 0; color: var(--blanco); font-size: 1.1em; }
-        .producto-info p { margin: 5px 0 0 0; color: var(--verde); font-weight: bold; }
-
-        /* Botones */
-        .btn-principal { 
-            background: var(--oro); color: black; border: none; padding: 15px; 
-            border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer;
-            font-size: 1em; margin-top: 10px;
-        }
-
-        .btn-add { 
-            background: var(--oro); border: none; padding: 10px 15px; 
-            border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
-
-        /* Carrito */
-        .carrito-container { margin-top: 40px; border-top: 2px dashed #444; padding-top: 20px; }
-        .item-carrito { 
-            background: #000; padding: 15px; border-radius: 10px; 
-            margin-bottom: 12px; border: 1px solid #222;
-        }
-        .item-carrito b { color: var(--oro); }
+        .container { max-width: 550px; margin: auto; background: #0a0a0a; min-height: 100vh; padding: 20px; border-left: 2px solid var(--oro); border-right: 2px solid var(--oro); box-sizing: border-box; }
         
-        textarea { 
-            width: 100%; height: 60px; background: #111; color: #ccc; 
-            border: 1px solid #444; border-radius: 8px; margin-top: 10px; 
-            padding: 10px; box-sizing: border-box; resize: none;
-        }
-
-        .total-box { 
-            font-size: 2em; text-align: center; color: var(--verde); 
-            margin: 20px 0; padding: 15px; border: 2px solid var(--verde);
-            border-radius: 10px;
-        }
-
-        /* Panel Admin Carlos */
-        .comanda { 
-            background: white; color: black; padding: 20px; 
-            border-radius: 15px; margin-bottom: 20px; border-left: 10px solid var(--oro);
-        }
-        .btn-listo { background: var(--verde); color: white; width: 100%; padding: 12px; margin-top: 10px; border-radius: 8px; border: none; font-weight: bold; }
+        h1, h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        input, button, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); box-sizing: border-box; font-size: 16px; }
+        
+        button { background: var(--oro); color: black; font-weight: bold; cursor: pointer; border: none; }
+        
+        /* Diseño del Catálogo Real de Carlos */
+        .categoria { background: var(--oro); color: black; padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-top: 20px; display: inline-block; }
+        .producto { background: #1f1f1f; padding: 15px; border-radius: 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .producto h4 { margin: 0; color: white; }
+        .producto p { margin: 5px 0 0 0; color: var(--verde); font-weight: bold; }
+        
+        /* Carrito */
+        .carrito-box { margin-top: 30px; border-top: 2px dashed #444; padding-top: 20px; }
+        .item-sel { background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #222; }
+        textarea { background: #111; color: #ccc; height: 60px; resize: none; }
+        .total { font-size: 2em; text-align: center; color: var(--verde); padding: 15px; border: 2px solid var(--verde); margin: 15px 0; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-
-    <div id="pantalla-inicio" class="seccion activa">
-        <h1 style="margin-top:40px;">ANTOJITOS 🍔</h1>
-        <p class="subtitulo">Sabor que te atrapa</p>
-        
-        <div class="login-box">
-            <input type="text" id="nombre-cliente" placeholder="¿Cómo te llamas?">
-            <button class="btn-principal" id="btn-entrar">VER EL MENÚ DE HOY</button>
-        </div>
-        
-        <p onclick="irAdmin()" style="text-align:center; margin-top:100px; color:#333; cursor:pointer; font-size:0.8em;">Acceso Carlos (Admin)</p>
+    <div id="p-inicio" class="seccion activa">
+        <h1 style="margin-top:50px">ANTOJITOS 🍔</h1>
+        <p style="text-align:center; color:#888">El sabor original de Carlos</p>
+        <input type="text" id="nom-cli" placeholder="Escribe tu nombre para pedir">
+        <button type="button" id="btn-entrar">VER EL MENÚ DE CARLOS</button>
+        <p onclick="irAdmin()" style="text-align:center; margin-top:60px; color:#333; cursor:pointer">Acceso Admin</p>
     </div>
 
-    <div id="pantalla-menu" class="seccion">
-        <h2 id="saludo-user"></h2>
+    <div id="p-menu" class="seccion">
+        <h2 id="hola-user"></h2>
         
-        <div id="menu-carlos">
-            <div class="categoria-header">Hamburguesas</div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>H. Mini</h4><p>$8.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Mini', 8000)">AÑADIR</button>
-            </div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>H. Momo</h4><p>$13.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Momo', 13000)">AÑADIR</button>
-            </div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>H. Trifásica (Mixta)</h4><p>$18.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Trifásica', 18000)">AÑADIR</button>
-            </div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>H. Antojitos (Especial)</h4><p>$22.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Antojitos', 22000)">AÑADIR</button>
-            </div>
+        <div class="categoria">Hamburguesas</div>
+        <div class="producto"><div><h4>H. Mini</h4><p>$8.000</p></div><button onclick="add('H. Mini', 8000)" style="width:auto">AÑADIR</button></div>
+        <div class="producto"><div><h4>H. Momo</h4><p>$13.000</p></div><button onclick="add('H. Momo', 13000)" style="width:auto">AÑADIR</button></div>
+        <div class="producto"><div><h4>H. Trifásica</h4><p>$18.000</p></div><button onclick="add('H. Trifásica', 18000)" style="width:auto">AÑADIR</button></div>
+        <div class="producto"><div><h4>H. Antojitos</h4><p>$22.000</p></div><button onclick="add('H. Antojitos', 22000)" style="width:auto">AÑADIR</button></div>
 
-            <div class="categoria-header">Perros y Salchipapas</div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>Perro Caliente</h4><p>$8.000</p></div>
-                <button class="btn-add" onclick="alCarrito('Perro Caliente', 8000)">AÑADIR</button>
-            </div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>Salchipapa Pequeña</h4><p>$10.000</p></div>
-                <button class="btn-add" onclick="alCarrito('Salchipapa P', 10000)">AÑADIR</button>
-            </div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>Salchipapa Grande</h4><p>$18.000</p></div>
-                <button class="btn-add" onclick="alCarrito('Salchipapa G', 18000)">AÑADIR</button>
-            </div>
+        <div class="categoria">Perros y Salchipapas</div>
+        <div class="producto"><div><h4>Perro Caliente</h4><p>$8.000</p></div><button onclick="add('Perro Caliente', 8000)" style="width:auto">AÑADIR</button></div>
+        <div class="producto"><div><h4>Salchipapa Pequeña</h4><p>$10.000</p></div><button onclick="add('Salchipapa P', 10000)" style="width:auto">AÑADIR</button></div>
+        <div class="producto"><div><h4>Salchipapa Grande</h4><p>$18.000</p></div><button onclick="add('Salchipapa G', 18000)" style="width:auto">AÑADIR</button></div>
 
-            <div class="categoria-header">Pollo y Extras</div>
-            <div class="producto-card">
-                <div class="producto-info"><h4>Pollo Broaster (1 Presa)</h4><p>$9.000</p></div>
-                <button class="btn-add" onclick="alCarrito('Pollo Broaster', 9000)">AÑADIR</button>
-            </div>
-        </div>
+        <div class="categoria">Pollo</div>
+        <div class="producto"><div><h4>Pollo Broaster</h4><p>$9.000</p></div><button onclick="add('Pollo Broaster', 9000)" style="width:auto">AÑADIR</button></div>
 
-        <div class="carrito-container">
-            <h3>Tu Pedido</h3>
-            <div id="lista-items">
-                <p style="text-align:center; color:#444;">Tu carrito está vacío.</p>
-            </div>
-            <div class="total-box">TOTAL: $<span id="total-precio">0</span></div>
-            <button class="btn-principal" onclick="enviarPedidoFirebase()" style="background:var(--verde); color:white;">CONFIRMAR Y ENVIAR</button>
+        <div class="carrito-box">
+            <h3>Tu Pedido Detallado</h3>
+            <div id="lista-carrito"></div>
+            <div class="total">TOTAL: $<span id="t-p">0</span></div>
+            <button onclick="enviarPedido()" style="background:var(--verde); color:white">ENVIAR A CARLOS</button>
         </div>
     </div>
 
-    <div id="pantalla-carlos" class="seccion">
-        <h1 style="color:var(--verde)">SISTEMA DE COCINA</h1>
-        <div id="ordenes-pendientes"></div>
-        <button class="btn-principal" onclick="location.reload()" style="background:#444; color:white;">SALIR DEL PANEL</button>
+    <div id="p-admin" class="seccion">
+        <h1 style="color:var(--verde)">COCINA ACTIVA</h1>
+        <div id="comandas"></div>
+        <button onclick="location.reload()" style="background:#444; color:white">SALIR</button>
     </div>
-
 </div>
 
 <script>
-    // --- FIREBASE CONFIG (DEBES COMPLETAR CON TUS DATOS) ---
-    const firebaseConfig = { 
-        apiKey: "TU_API_KEY", 
-        databaseURL: "TU_DATABASE_URL", 
-        projectId: "TU_PROJECT_ID" 
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // --- FIREBASE: Pon tus datos aquí ---
+    const config = { apiKey: "TU_API", databaseURL: "TU_URL", projectId: "TU_ID" };
+    let db;
+    try {
+        firebase.initializeApp(config);
+        db = firebase.database();
+    } catch(e) { console.log("Firebase no cargó todavía"); }
 
-    let clienteNombre = "";
-    let carritoActual = [];
+    let cliente = "";
+    let carrito = [];
 
-    // Pedir permiso para notificaciones
-    if (Notification.permission !== "granted") { Notification.requestPermission(); }
-
-    // BOTÓN ENTRAR: Acción inmediata
+    // BOTÓN ENTRAR: Ahora es instantáneo, no espera a Firebase
     document.getElementById('btn-entrar').onclick = function() {
-        clienteNombre = document.getElementById('nombre-cliente').value.trim();
-        if(clienteNombre === "") return alert("Por favor escribe tu nombre.");
+        cliente = document.getElementById('nom-cli').value.trim();
+        if(cliente === "") return alert("Pon tu nombre");
 
-        document.getElementById('pantalla-inicio').classList.remove('activa');
-        document.getElementById('pantalla-menu').classList.add('activa');
-        document.getElementById('saludo-user').innerText = "Bienvenido, " + clienteNombre;
+        document.getElementById('p-inicio').classList.remove('activa');
+        document.getElementById('p-menu').classList.add('activa');
+        document.getElementById('hola-user').innerText = "Cliente: " + cliente;
         window.scrollTo(0,0);
     };
 
-    // LÓGICA DEL CARRITO
-    function alCarrito(nombre, precio) {
-        carritoActual.push({ nombre: nombre, precio: precio, nota: "" });
-        actualizarCarritoUI();
+    function add(n, p) {
+        carrito.push({ nombre: n, precio: p, nota: "" });
+        render();
     }
 
-    function actualizarCarritoUI() {
-        const contenedor = document.getElementById('lista-items');
-        contenedor.innerHTML = "";
-        let total = 0;
-
-        carritoActual.forEach((item, index) => {
-            total += item.precio;
-            contenedor.innerHTML += `
-                <div class="item-carrito">
-                    <div style="display:flex; justify-content:space-between">
-                        <b>${item.nombre}</b>
-                        <span>$${item.precio}</span>
-                    </div>
-                    <textarea placeholder="Ej: Sin cebolla, extra salsa..." onchange="actualizarNota(${index}, this.value)">${item.nota}</textarea>
-                    <button onclick="quitarItem(${index})" style="background:none; color:red; border:none; cursor:pointer; font-size:0.8em; margin-top:5px; padding:0">Eliminar</button>
-                </div>
-            `;
+    function render() {
+        const div = document.getElementById('lista-carrito');
+        div.innerHTML = "";
+        let suma = 0;
+        carrito.forEach((item, index) => {
+            suma += item.precio;
+            div.innerHTML += `
+                <div class="item-sel">
+                    <b>${item.nombre} - $${item.precio}</b>
+                    <textarea placeholder="Ej: Sin salsa, sin cebolla..." onchange="carrito[${index}].nota=this.value">${item.nota}</textarea>
+                    <button onclick="carrito.splice(${index},1);render()" style="background:red; color:white; width:auto; padding:5px; font-size:12px; border:none">Eliminar</button>
+                </div>`;
         });
-        document.getElementById('total-precio').innerText = total;
+        document.getElementById('t-p').innerText = suma;
     }
 
-    function actualizarNota(index, texto) {
-        carritoActual[index].nota = texto;
-    }
-
-    function quitarItem(index) {
-        carritoActual.splice(index, 1);
-        actualizarCarritoUI();
-    }
-
-    // FIREBASE: Enviar pedido
-    function enviarPedidoFirebase() {
-        if(carritoActual.length === 0) return alert("El carrito está vacío.");
+    function enviarPedido() {
+        if(carrito.length === 0) return alert("El carrito está vacío");
+        if(!db) return alert("Error: Firebase no está configurado.");
 
         const pedido = {
-            cliente: clienteNombre,
-            productos: carritoActual,
-            total: document.getElementById('total-precio').innerText,
+            cliente: cliente,
+            productos: carrito,
+            total: document.getElementById('t-p').innerText,
             listo: false,
-            timestamp: new Date().toLocaleTimeString(),
-            notificado: false
+            timestamp: new Date().toLocaleTimeString()
         };
 
-        const nuevaOrdenRef = db.ref('pedidos/').push(pedido);
-        alert("¡Pedido enviado! Carlos lo recibirá en su cocina.");
-        
-        // Escucha en segundo plano para avisar al cliente
-        db.ref('pedidos/' + nuevaOrdenRef.key).on('value', snap => {
-            const data = snap.val();
-            if(data && data.listo && !data.notificado) {
-                if (Notification.permission === "granted") {
-                    new Notification("🍔 ¡Antojitos!", { body: clienteNombre + ", tu pedido ya está listo." });
-                }
-                alert("¡TU PEDIDO ESTÁ LISTO PARA RECOGER!");
-                db.ref('pedidos/' + nuevaOrdenRef.key).update({ notificado: true });
+        const ref = db.ref('pedidos/').push(pedido);
+        alert("¡Pedido enviado! Carlos ya lo tiene.");
+
+        // Notificación cuando esté listo
+        db.ref('pedidos/' + ref.key).on('value', s => {
+            const p = s.val();
+            if(p && p.listo) {
+                alert("¡ANTOJITOS AVISA: Tu pedido ya está listo!");
             }
         });
     }
 
-    // PANEL DE CARLOS
     function irAdmin() {
-        const clave = prompt("Clave de Carlos:");
-        if(clave === "antojitos2026") {
-            document.getElementById('pantalla-inicio').classList.remove('activa');
-            document.getElementById('pantalla-carlos').classList.add('activa');
-            escucharPedidos();
+        if(prompt("Clave Admin:") === "antojitos2026") {
+            document.getElementById('p-inicio').classList.remove('activa');
+            document.getElementById('p-admin').classList.add('activa');
+            escuchar();
         }
     }
 
-    function escucharPedidos() {
+    function escuchar() {
         db.ref('pedidos/').on('value', snap => {
-            const div = document.getElementById('ordenes-pendientes');
+            const div = document.getElementById('comandas');
             div.innerHTML = "";
-            snap.forEach(hijo => {
-                const p = hijo.val();
+            snap.forEach(h => {
+                const p = h.val();
                 if(!p.listo) {
-                    let itemsHtml = p.productos.map(i => `• ${i.nombre}: <small>${i.nota}</small>`).join('<br>');
+                    let items = p.productos.map(i => `• ${i.nombre}: ${i.nota}`).join('<br>');
                     div.innerHTML += `
-                        <div class="comanda">
-                            <div style="display:flex; justify-content:space-between">
-                                <strong>${p.cliente}</strong>
-                                <span>${p.timestamp}</span>
-                            </div>
-                            <div style="margin:10px 0; border-top:1px solid #eee; padding-top:10px">${itemsHtml}</div>
-                            <div style="font-weight:bold; color:green">TOTAL: $${p.total}</div>
-                            <button class="btn-listo" onclick="marcarListo('${hijo.key}')">MARCAR COMO LISTO ✓</button>
-                        </div>
-                    `;
+                        <div style="background:white; color:black; padding:15px; margin-bottom:10px; border-radius:10px; border-left:10px solid var(--oro)">
+                            <strong>${p.cliente}</strong> (${p.timestamp})<br>${items}<br>
+                            <b>Total: $${p.total}</b><br>
+                            <button onclick="marcarListo('${h.key}')" style="background:green; color:white; width:100%; margin-top:10px">ENTREGAR PEDIDO</button>
+                        </div>`;
                 }
             });
         });
@@ -319,6 +178,5 @@
         db.ref('pedidos/' + id).update({ listo: true });
     }
 </script>
-
 </body>
 </html>

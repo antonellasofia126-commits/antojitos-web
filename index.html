@@ -3,202 +3,316 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - Menú Profesional</title>
+    <title>Antojitos - Sistema de Pedidos Profesional</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { --oro: #d4af37; --negro: #000; --gris: #1a1a1a; --verde: #2ecc71; }
-        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 10px; }
-        .container { max-width: 500px; margin: auto; border: 2px solid var(--oro); padding: 20px; border-radius: 15px; background: var(--gris); box-shadow: 0 0 20px rgba(212,175,55,0.3); }
+        :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; --rojo: #e74c3c; }
         
-        /* Sistema de Pantallas */
-        .pantalla { display: none; visibility: hidden; }
-        .activa { display: block !important; visibility: visible !important; }
+        body { 
+            background-color: var(--negro); 
+            color: var(--oro); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container { 
+            width: 100%; 
+            max-width: 600px; 
+            background: var(--gris); 
+            border: 2px solid var(--oro); 
+            border-radius: 20px; 
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+            min-height: 90vh;
+        }
+
+        /* Gestión de Pantallas */
+        .seccion { display: none; }
+        .visible { display: block !important; }
+
+        h1, h2, h3 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
         
-        /* Estilo de Productos */
-        .producto-card { background: #222; border: 1px solid #333; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid var(--oro); }
-        .info h3 { margin: 0; color: #fff; font-size: 1.1em; }
-        .info p { margin: 5px 0; color: var(--verde); font-weight: bold; }
-        
-        /* Carrito y Notas */
-        .item-carrito { background: #000; padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #444; }
-        textarea { width: 100%; padding: 10px; background: #111; border: 1px solid var(--oro); color: #fff; border-radius: 5px; box-sizing: border-box; margin-top: 10px; }
-        
-        input[type="text"] { width: 100%; padding: 15px; background: #222; border: 1px solid var(--oro); color: #fff; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: var(--oro); color: #000; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 1em; }
-        .btn-add { width: auto; padding: 8px 15px; }
-        .total-box { text-align: center; font-size: 2em; margin: 20px 0; padding: 15px; border: 2px solid var(--verde); color: var(--verde); background: #000; }
-        
-        /* Panel Carlos */
-        .comanda { background: white; color: black; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 10px solid var(--oro); }
+        /* Estilos de Entrada */
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 15px; margin: 10px 0; 
+            background: #1a1a1a; border: 1px solid var(--oro); 
+            color: white; border-radius: 10px; box-sizing: border-box;
+        }
+
+        button {
+            width: 100%; padding: 18px; margin-top: 10px;
+            background: var(--oro); color: black; border: none;
+            border-radius: 10px; font-weight: bold; font-size: 1.1em;
+            cursor: pointer; transition: 0.3s;
+        }
+
+        button:hover { background: white; }
+
+        /* Catálogo de Productos */
+        .producto-card {
+            background: #1f1f1f; border: 1px solid #333;
+            padding: 15px; border-radius: 12px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .producto-info h4 { margin: 0; color: white; }
+        .producto-info span { color: var(--verde); font-weight: bold; }
+
+        .btn-añadir { width: auto; padding: 10px 20px; font-size: 0.9em; }
+
+        /* Carrito Dinámico */
+        .carrito-container {
+            margin-top: 30px; border-top: 2px dashed var(--oro); padding-top: 20px;
+        }
+
+        .carrito-item {
+            background: #000; border: 1px solid #444;
+            padding: 15px; border-radius: 10px; margin-bottom: 10px;
+        }
+
+        .carrito-item textarea {
+            width: 100%; height: 60px; margin-top: 10px;
+            background: #111; color: #ccc; border: 1px solid #333;
+            padding: 8px; border-radius: 5px; box-sizing: border-box; resize: none;
+        }
+
+        .total-display {
+            font-size: 2.2em; text-align: center; margin: 25px 0;
+            color: var(--verde); font-weight: bold; border: 2px solid var(--verde);
+            padding: 10px; border-radius: 10px;
+        }
+
+        /* Estilos Cocina Carlos */
+        .comanda-box {
+            background: white; color: black; padding: 20px;
+            border-radius: 15px; margin-bottom: 15px;
+            border-left: 12px solid var(--oro);
+        }
+
+        .btn-listo { background: var(--verde); color: white; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="pantalla1" class="pantalla activa">
-        <h1 style="text-align:center">ANTOJITOS 🍔</h1>
-        <p style="text-align:center">Bienvenido. ¿Cuál es tu nombre?</p>
-        <input type="text" id="nombreInput" placeholder="Escribe tu nombre aquí...">
-        <button onclick="abrirMenu()" style="margin-top:15px">INGRESAR AL MENÚ</button>
-        <p onclick="irAdmin()" style="text-align:center; font-size:0.8em; margin-top:30px; color:#444; cursor:pointer">Acceso Administrador</p>
+<div class="app-container">
+
+    <div id="pantalla-inicio" class="seccion visible">
+        <h1>Antojitos 🍔</h1>
+        <p style="text-align:center">Bienvenido al sistema de pedidos en tiempo real.</p>
+        <input type="text" id="nombre-cliente" placeholder="Ingresa tu nombre para empezar">
+        <button onclick="loguearCliente()">INGRESAR AL MENÚ</button>
+        <div onclick="abrirCocina()" style="text-align:center; margin-top:50px; font-size:0.8em; color:#444; cursor:pointer;">Panel de Administración</div>
     </div>
 
-    <div id="pantalla2" class="pantalla">
-        <h2 id="txtBienvenida" style="text-align:center"></h2>
+    <div id="pantalla-tienda" class="seccion">
+        <h2 id="bienvenida-txt"></h2>
         
-        <div id="lista-productos">
+        <div id="catalogo">
             <div class="producto-card">
-                <div class="info"><h3>H. Sencilla</h3><p>$8.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Sencilla', 8000)">AÑADIR</button>
+                <div class="producto-info"><h4>Hamburguesa Sencilla</h4><span>$8.000</span></div>
+                <button class="btn-añadir" onclick="agregarProducto('H. Sencilla', 8000)">AÑADIR</button>
             </div>
             <div class="producto-card">
-                <div class="info"><h3>H. Especial</h3><p>$13.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Especial', 13000)">AÑADIR</button>
+                <div class="producto-info"><h4>Hamburguesa Especial</h4><span>$13.000</span></div>
+                <button class="btn-añadir" onclick="agregarProducto('H. Especial', 13000)">AÑADIR</button>
             </div>
             <div class="producto-card">
-                <div class="info"><h3>H. Super</h3><p>$19.000</p></div>
-                <button class="btn-add" onclick="alCarrito('H. Super', 19000)">AÑADIR</button>
+                <div class="producto-info"><h4>Hamburguesa Super</h4><span>$19.000</span></div>
+                <button class="btn-añadir" onclick="agregarProducto('H. Super', 19000)">AÑADIR</button>
             </div>
             <div class="producto-card">
-                <div class="info"><h3>Salchipapa</h3><p>$10.000</p></div>
-                <button class="btn-add" onclick="alCarrito('Salchipapa', 10000)">AÑADIR</button>
+                <div class="producto-info"><h4>Salchipapa</h4><span>$10.000</span></div>
+                <button class="btn-añadir" onclick="agregarProducto('Salchipapa', 10000)">AÑADIR</button>
+            </div>
+            <div class="producto-card">
+                <div class="producto-info"><h4>Perro Caliente</h4><span>$8.000</span></div>
+                <button class="btn-añadir" onclick="agregarProducto('Perro Caliente', 8000)">AÑADIR</button>
             </div>
         </div>
 
-        <div style="margin-top:30px; border-top: 1px solid var(--oro); padding-top:20px;">
-            <h2 style="color:#fff">TU PEDIDO</h2>
-            <div id="carrito-items"></div>
-            <div class="total-box">TOTAL: $<span id="totalFinal">0</span></div>
-            <button onclick="enviarAFirebase()" style="background:var(--verde); color:white; font-size:1.2em">CONFIRMAR PEDIDO</button>
+        <div class="carrito-container">
+            <h3>Tu Carrito</h3>
+            <div id="items-carrito">
+                <p style="text-align:center; color:#555">Aún no has añadido productos.</p>
+            </div>
+            <div class="total-display">TOTAL: $<span id="valor-total">0</span></div>
+            <button id="btn-enviar-pedido" onclick="finalizarPedido()" style="background:var(--verde); color:white;">ENVIAR PEDIDO A COCINA</button>
         </div>
     </div>
 
-    <div id="pantalla3" class="pantalla">
-        <h1 style="color:var(--verde)">COCINA - ANTOJITOS</h1>
-        <div id="pedidos-realtime"></div>
-        <button onclick="location.reload()" style="background:#444; color:#fff; margin-top:20px">VOLVER</button>
+    <div id="pantalla-cocina" class="seccion">
+        <h1 style="color:var(--verde)">Cocina Activa</h1>
+        <div id="lista-comandas"></div>
+        <button onclick="location.reload()" style="background:#444; color:white; margin-top:20px;">CERRAR PANEL</button>
     </div>
+
 </div>
 
 <script>
-    // --- REEMPLAZA CON TUS CREDENCIALES DE FIREBASE ---
-    const firebaseConfig = { apiKey: "TU_API", databaseURL: "TU_URL", projectId: "TU_ID" };
+    // --- CONFIGURACIÓN DE FIREBASE ---
+    // Coloca tus datos aquí para que conecte a tu base de datos
+    const firebaseConfig = { 
+        apiKey: "TU_API", 
+        databaseURL: "TU_URL", 
+        projectId: "TU_ID" 
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let clienteActual = "";
-    let miCarrito = [];
+    let clienteGlobal = "";
+    let carritoGlobal = [];
 
-    // Pedir permiso de notificaciones de una vez
-    if (Notification.permission !== "granted") {
+    // Pedir permiso para las notificaciones en segundo plano
+    if (Notification.permission !== 'granted') {
         Notification.requestPermission();
     }
 
-    function abrirMenu() {
-        clienteActual = document.getElementById('nombreInput').value.trim();
-        if(clienteActual === "") return alert("Por favor escribe tu nombre.");
+    // --- FUNCIONES DE NAVEGACIÓN ---
+    function cambiarPantalla(id) {
+        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('visible'));
+        document.getElementById(id).classList.add('visible');
+    }
+
+    function loguearCliente() {
+        clienteGlobal = document.getElementById('nombre-cliente').value.trim();
+        if(clienteGlobal === "") return alert("Por favor, ingresa tu nombre.");
         
-        // Cambio de pantalla garantizado
-        document.getElementById('pantalla1').classList.remove('activa');
-        document.getElementById('pantalla2').classList.add('activa');
-        document.getElementById('txtBienvenida').innerText = "Cliente: " + clienteActual;
+        document.getElementById('bienvenida-txt').innerText = "Hola, " + clienteGlobal;
+        cambiarPantalla('pantalla-tienda');
     }
 
-    function alCarrito(nombre, precio) {
-        miCarrito.push({ nombre: nombre, precio: precio, nota: "" });
-        dibujarCarrito();
-    }
-
-    function dibujarCarrito() {
-        const contenedor = document.getElementById('carrito-items');
-        contenedor.innerHTML = "";
-        let suma = 0;
-        miCarrito.forEach((item, i) => {
-            suma += item.precio;
-            contenedor.innerHTML += `
-                <div class="item-carrito">
-                    <div style="display:flex; justify-content:space-between">
-                        <b>${item.nombre}</b> <b>$${item.precio}</b>
-                    </div>
-                    <textarea placeholder="¿Cómo la quieres? (Ej: Sin cebolla)" onchange="updateNota(${i}, this.value)">${item.nota}</textarea>
-                    <button onclick="eliminar(${i})" style="background:none; color:red; font-size:0.7em; text-align:right; width:auto; padding:0">Eliminar</button>
-                </div>`;
+    // --- LÓGICA DEL CARRITO ---
+    function agregarProducto(nombre, precio) {
+        // Cada producto entra como un objeto único al array
+        carritoGlobal.push({
+            nombre: nombre,
+            precio: precio,
+            nota: ""
         });
-        document.getElementById('totalFinal').innerText = suma;
+        renderizarCarrito();
     }
 
-    function updateNota(i, val) { miCarrito[i].nota = val; }
-    function eliminar(i) { miCarrito.splice(i, 1); dibujarCarrito(); }
+    function renderizarCarrito() {
+        const contenedor = document.getElementById('items-carrito');
+        contenedor.innerHTML = "";
+        let sumaTotal = 0;
 
-    function enviarAFirebase() {
-        if(miCarrito.length === 0) return alert("El carrito está vacío.");
-        const pedido = {
-            cliente: clienteActual,
-            items: miCarrito,
-            total: document.getElementById('totalFinal').innerText,
+        carritoGlobal.forEach((prod, index) => {
+            sumaTotal += prod.precio;
+            contenedor.innerHTML += `
+                <div class="carrito-item">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <strong style="color:white">${prod.nombre}</strong>
+                        <span style="color:var(--verde)">$${prod.precio}</span>
+                        <button onclick="eliminarDelCarrito(${index})" style="width:auto; padding:5px 10px; background:var(--rojo); color:white; font-size:0.7em;">X</button>
+                    </div>
+                    <textarea placeholder="Especificaciones (Ej: Sin cebolla, extra queso...)" onchange="actualizarNota(${index}, this.value)">${prod.nota}</textarea>
+                </div>
+            `;
+        });
+        document.getElementById('valor-total').innerText = sumaTotal;
+    }
+
+    function actualizarNota(index, texto) {
+        carritoGlobal[index].nota = texto;
+    }
+
+    function eliminarDelCarrito(index) {
+        carritoGlobal.splice(index, 1);
+        renderizarCarrito();
+    }
+
+    // --- ENVÍO A FIREBASE Y NOTIFICACIÓN ---
+    function finalizarPedido() {
+        if(carritoGlobal.length === 0) return alert("Tu carrito está vacío.");
+
+        const pedidoData = {
+            cliente: clienteGlobal,
+            productos: carritoGlobal,
+            total: document.getElementById('valor-total').innerText,
             hora: new Date().toLocaleTimeString(),
             listo: false,
-            avisoEnviado: false
+            notificado: false
         };
-        const nuevoPedido = db.ref('pedidos/').push(pedido);
-        const id = nuevoPedido.key;
+
+        const nuevoPedidoRef = db.ref('pedidos/').push(pedidoData);
+        const pedidoID = nuevoPedidoRef.key;
+
+        alert("¡Pedido enviado! Te avisaremos cuando Carlos lo termine.");
         
-        alert("¡Pedido enviado! Te avisaremos al celular cuando esté listo.");
-        escucharEstado(id); // Activa el segundo plano
+        // Bloquear interfaz para esperar
+        document.getElementById('btn-enviar-pedido').disabled = true;
+        document.getElementById('btn-enviar-pedido').innerText = "COCINANDO TU PEDIDO...";
         
-        // Bloquear botón para no repetir
-        document.querySelector('button[onclick="enviarAFirebase()"]').disabled = true;
-        document.querySelector('button[onclick="enviarAFirebase()"]').innerText = "COCINANDO...";
+        escucharCambioEstado(pedidoID);
     }
 
-    function escucharEstado(id) {
-        db.ref('pedidos/' + id).on('value', snap => {
-            const pedido = snap.val();
-            if(pedido && pedido.listo && !pedido.avisoEnviado) {
-                if (Notification.permission === "granted") {
-                    new Notification("🍔 ¡Antojitos avisó!", {
-                        body: `¡Hola ${clienteActual}! Tu comida ya salió de la cocina.`,
+    function escucharCambioEstado(id) {
+        db.ref('pedidos/' + id).on('value', snapshot => {
+            const pedido = snapshot.val();
+            if (pedido && pedido.listo && !pedido.notificado) {
+                // DISPARAR NOTIFICACIÓN EN SEGUNDO PLANO
+                if (Notification.permission === 'granted') {
+                    new Notification("🍔 ¡Antojitos Avisa!", {
+                        body: `¡Hola ${clienteGlobal}! Tu pedido está listo para recoger.`,
                         icon: "https://cdn-icons-png.flaticon.com/512/706/706164.png"
                     });
                 }
                 alert("¡TU PEDIDO ESTÁ LISTO!");
-                db.ref('pedidos/' + id).update({ avisoEnviado: true });
+                db.ref('pedidos/' + id).update({ notificado: true });
             }
         });
     }
 
-    function irAdmin() {
-        if(prompt("Clave:") === "antojitos2026") {
-            document.getElementById('pantalla1').classList.remove('activa');
-            document.getElementById('pantalla3').classList.add('activa');
-            cargarCocina();
+    // --- PANEL DE ADMINISTRACIÓN (CARLOS) ---
+    function abrirCocina() {
+        const pass = prompt("Ingresa la clave de administrador:");
+        if(pass === "antojitos2026") {
+            cambiarPantalla('pantalla-cocina');
+            cargarComandas();
+        } else {
+            alert("Acceso denegado.");
         }
     }
 
-    function cargarCocina() {
-        db.ref('pedidos/').on('value', snap => {
-            const div = document.getElementById('pedidos-realtime');
-            div.innerHTML = "";
-            snap.forEach(h => {
-                const p = h.val();
-                if(!p.listo) {
-                    let detalleHtml = p.items.map(i => `• ${i.nombre}: ${i.nota}`).join('<br>');
-                    div.innerHTML += `
-                        <div class="comanda">
-                            <strong>${p.cliente}</strong> (${p.hora})<br>
-                            <div style="font-size:0.9em; margin:10px 0">${detalleHtml}</div>
-                            <b>TOTAL: $${p.total}</b><br>
-                            <button onclick="marcarListo('${h.key}')" style="background:green; color:white; height:auto; padding:5px; margin-top:10px">LISTO PARA ENTREGAR</button>
-                        </div>`;
+    function cargarComandas() {
+        db.ref('pedidos/').on('value', snapshot => {
+            const contenedor = document.getElementById('lista-comandas');
+            contenedor.innerHTML = "";
+            
+            snapshot.forEach(hijo => {
+                const pedido = hijo.val();
+                if(!pedido.listo) {
+                    let listaHTML = pedido.productos.map(p => `• <b>${p.nombre}</b>: ${p.nota}`).join('<br>');
+                    
+                    contenedor.innerHTML += `
+                        <div class="comanda-box">
+                            <div style="display:flex; justify-content:space-between">
+                                <strong>CLIENTE: ${pedido.cliente}</strong>
+                                <small>${pedido.hora}</small>
+                            </div>
+                            <div style="margin:10px 0; border-top:1px solid #ddd; padding-top:10px;">
+                                ${listaHTML}
+                            </div>
+                            <div style="font-weight:bold; font-size:1.2em; color:green">TOTAL: $${pedido.total}</div>
+                            <button class="btn-listo" onclick="marcarCompletado('${hijo.key}')">LISTO PARA ENTREGAR ✓</button>
+                        </div>
+                    `;
                 }
             });
         });
     }
 
-    function marcarListo(id) { db.ref('pedidos/' + id).update({ listo: true }); }
+    function marcarCompletado(id) {
+        db.ref('pedidos/' + id).update({ listo: true });
+    }
 </script>
+
 </body>
 </html>

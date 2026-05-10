@@ -17,7 +17,6 @@
         input, button, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--oro); font-weight: bold; box-sizing: border-box; font-size: 16px; }
         textarea { background: #111; color: white; height: 60px; resize: none; font-weight: normal; border-color: #333; }
         button { background: var(--oro); color: #000; cursor: pointer; border: none; transition: 0.2s; }
-        button:active { transform: scale(0.96); }
         .cat-titulo { background: var(--oro); color: #000; padding: 10px; border-radius: 6px; margin: 30px 0 15px; text-align: center; font-weight: 900; letter-spacing: 1px; }
         .producto-card { background: var(--gris); padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; }
         .prod-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
@@ -30,6 +29,7 @@
         .ticket-cancelado { border-left-color: var(--rojo); opacity: 0.6; background: #ffebeb; }
         .nota-especial { background: #fff0f0; border: 1px dashed var(--rojo); color: var(--rojo); padding: 8px; border-radius: 6px; margin-top: 10px; font-size: 0.9em; font-weight: bold; }
         .hora-ticket { font-size: 0.7em; color: #666; float: right; }
+        #btn-audio-carlos { background: var(--verde); color: white; margin-bottom: 20px; display: block; }
     </style>
 </head>
 <body>
@@ -65,6 +65,7 @@
     </div>
 
     <div id="p-carlos" class="seccion">
+        <button id="btn-audio-carlos" onclick="activarCanalAudio()">🔊 CLIC PARA ACTIVAR AVISOS DE VOZ</button>
         <h1 style="color:var(--verde)">PEDIDOS EN COLA</h1>
         <div id="contenedor-pedidos-carlos"></div>
         <button onclick="location.reload()" style="background:#222; color:white; margin-top:30px">CERRAR SESIÓN</button>
@@ -100,14 +101,21 @@
         {cat:'PERROS', nom:'Perro Americano', pre:13000, desc:'Dos proteínas, tocino y jamón'}
     ];
 
-    let carrito = [], miPedidoRef = null, timerCancelacion, segundosRestantes = 60;
+    let carrito = [], miPedidoRef = null, segundosRestantes = 60, audioListo = false;
 
     function sistemaVoz(texto) {
+        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
         const enunciado = new SpeechSynthesisUtterance(texto);
         enunciado.lang = 'es-ES';
         enunciado.rate = 1;
         window.speechSynthesis.speak(enunciado);
+    }
+
+    function activarCanalAudio() {
+        audioListo = true;
+        document.getElementById('btn-audio-carlos').style.display = 'none';
+        sistemaVoz("Sistema de avisos activado.");
     }
 
     function irSeccion(id) {
@@ -127,22 +135,20 @@
             html += `<div class="producto-card">
                         <div class="prod-info"><span class="prod-nombre">${p.nom}</span><span class="prod-precio">$${p.pre}</span></div>
                         <p class="prod-desc">${p.desc}</p>
-                        <textarea id="nota-${index}" placeholder="Ej: sin salsas, sin vegetales..."></textarea>
+                        <textarea id="nota-${index}" placeholder="Ej: sin cebolla..."></textarea>
                         <button onclick="agregarAlCarrito(${index})">AGREGAR AL PEDIDO</button>
                     </div>`;
         });
         document.getElementById('lista-menu').innerHTML = html;
-        sistemaVoz("Bienvenido.");
     }
 
     function agregarAlCarrito(idx) {
         const p = menuCompleto[idx];
-        const observacion = document.getElementById(`nota-${idx}`).value;
-        carrito.push({ nombre: p.nom, precio: p.pre, nota: observacion });
+        const obs = document.getElementById(`nota-${idx}`).value;
+        carrito.push({ nombre: p.nom, precio: p.pre, nota: obs });
         document.getElementById('contador-items').innerText = carrito.length;
         document.getElementById('monto-carrito').innerText = carrito.reduce((acc, item) => acc + item.precio, 0).toLocaleString();
         document.getElementById(`nota-${idx}`).value = "";
-        alert(p.nom + " añadido.");
     }
 
     function procesarPedido() {
@@ -156,48 +162,31 @@
         miPedidoRef = ref.key;
         document.getElementById('barra-pedido').style.display = 'none';
         document.getElementById('area-seguimiento').style.display = 'block';
-        document.getElementById('texto-seguimiento').innerText = "Pedido enviado a Carlos.";
-        iniciarContador();
+        document.getElementById('texto-seguimiento').innerText = "Enviado a Carlos.";
         db.ref('pedidos/' + miPedidoRef).on('value', snap => {
             if(snap.val()?.listo) {
                 sistemaVoz("¡Tu pedido está listo!");
-                document.getElementById('texto-seguimiento').innerHTML = "<span style='color:var(--verde)'>¡LISTO PARA RECOGER!</span>";
-                document.getElementById('btn-cancelar-pedido').style.display = "none";
+                document.getElementById('texto-seguimiento').innerHTML = "<span style='color:var(--verde)'>¡PEDIDO LISTO!</span>";
             }
         });
     }
 
-    function iniciarContador() {
-        segundosRestantes = 60;
-        timerCancelacion = setInterval(() => {
-            segundosRestantes--;
-            document.getElementById('btn-cancelar-pedido').innerText = `CANCELAR (${segundosRestantes}s)`;
-            if(segundosRestantes <= 0) { clearInterval(timerCancelacion); document.getElementById('btn-cancelar-pedido').style.display = "none"; }
-        }, 1000);
-    }
-
-    function cancelarMiPedido() {
-        if(confirm("¿Cancelar?")) { db.ref('pedidos/'+miPedidoRef).update({cancelado:true}); location.reload(); }
-    }
-
-    // --- SECCIÓN DE CARLOS (VOZ CORREGIDA) ---
     function entrarCarlos() {
         const pass = prompt("Clave:");
         if(pass === "antojitos2026") {
             irSeccion('p-carlos');
-            sistemaVoz("Sistema activado. Carlos, el audio de pedidos está listo.");
             
-            let historialLocal = 0; // Para comparar cantidades
+            let historialLocal = -1; // -1 indica que es la primera carga
 
             db.ref('pedidos/').on('value', snap => {
                 const contenedor = document.getElementById('contenedor-pedidos-carlos');
-                let conteoActual = 0;
+                let cuentaActual = 0;
                 contenedor.innerHTML = "";
                 
                 snap.forEach(hijo => {
                     const p = hijo.val();
                     if(!p.listo) {
-                        conteoActual++;
+                        cuentaActual++;
                         let listH = p.items.map(i => `• ${i.nombre} ${i.nota ? `<div class="nota-especial">OJO: ${i.nota}</div>` : ''}`).join('<br>');
                         contenedor.innerHTML += `
                             <div class="ticket-carlos ${p.cancelado ? 'ticket-cancelado' : ''}">
@@ -209,19 +198,19 @@
                             </div>`;
                         
                         if(p.cancelado && !hijo.vistoCan) { 
-                            sistemaVoz("Carlos, el pedido de " + p.cliente + " fue cancelado.");
+                            if(audioListo) sistemaVoz("Carlos, pedido cancelado.");
                             hijo.vistoCan = true; 
                         }
                     }
                 });
 
-                // ESTE ES EL CAMBIO CLAVE PARA EL AUDIO
-                if(conteoActual > historialLocal) {
-                    if(historialLocal !== 0) { // Solo si ya había cargado los iniciales
+                // LÓGICA DE AUDIO DE NUEVO PEDIDO
+                if(historialLocal !== -1 && cuentaActual > historialLocal) {
+                    if(audioListo) {
                         sistemaVoz("¡Atención Carlos! Tienes un nuevo pedido.");
                     }
                 }
-                historialLocal = conteoActual; // Actualizamos el historial
+                historialLocal = cuentaActual; 
             });
         }
     }

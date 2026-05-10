@@ -3,26 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos Gold - Sistema de Pedidos</title>
+    <title>Antojitos - Sistema Robusto</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
         :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; }
-        body { background-color: var(--negro); color: var(--oro); font-family: sans-serif; margin: 0; padding: 15px; }
+        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 15px; }
         
-        /* FUERZA BRUTA PARA PANTALLAS */
-        .seccion { display: none !important; }
-        .activa { display: block !important; }
+        /* FUERZA BRUTA PARA PANTALLAS: Asegura que el cambio sea visible */
+        .seccion { display: none !important; opacity: 0; }
+        .activa { display: block !important; opacity: 1 !important; transition: opacity 0.5s; }
 
-        .container { max-width: 500px; margin: auto; background: var(--gris); border: 2px solid var(--oro); padding: 20px; border-radius: 15px; }
-        input, button, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); box-sizing: border-box; }
-        button { background: var(--oro); color: black; font-weight: bold; cursor: pointer; }
+        .container { max-width: 500px; margin: auto; background: var(--gris); border: 2px solid var(--oro); padding: 20px; border-radius: 15px; box-shadow: 0 0 20px rgba(212,175,55,0.2); }
+        input, button, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); box-sizing: border-box; font-size: 16px; }
         
+        button { background: var(--oro); color: black; font-weight: bold; cursor: pointer; border: none; }
+        button:active { transform: scale(0.98); }
+
         .producto-card { background: #1f1f1f; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 5px solid var(--oro); display: flex; justify-content: space-between; align-items: center; }
         .carrito-item { background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #333; }
-        textarea { background: #111; color: white; height: 60px; }
+        textarea { background: #111; color: white; height: 70px; resize: none; border: 1px solid #444; }
+        
+        .total-box { text-align: center; color: var(--verde); font-size: 24px; font-weight: bold; border: 2px solid var(--verde); padding: 10px; margin: 15px 0; }
     </style>
 </head>
 <body>
@@ -30,108 +34,149 @@
 <div class="container">
     <div id="p-inicio" class="seccion activa">
         <h1 style="text-align:center">ANTOJITOS 🍔</h1>
-        <input type="text" id="nom-cli" placeholder="Escribe tu nombre...">
-        <button onclick="entrarAlSistema()">INGRESAR AL MENÚ</button>
-        <p onclick="irCocina()" style="text-align:center; color:#444; cursor:pointer; font-size:0.8em">Admin Carlos</p>
+        <p style="text-align:center">Introduce tu nombre para ver la carta:</p>
+        <input type="text" id="nom-cli" placeholder="Tu nombre aquí...">
+        <button type="button" onclick="entrarAlSistema()">VER CATÁLOGO</button>
+        <p onclick="irCocina()" style="text-align:center; color:#555; cursor:pointer; font-size:12px; margin-top:40px">Acceso Admin Carlos</p>
     </div>
 
     <div id="p-menu" class="seccion">
-        <h2 id="bienvenida" style="text-align:center"></h2>
+        <h2 id="bienvenida" style="text-align:center; color:white"></h2>
         
         <div id="tienda">
-            <div class="producto-card"><span>H. Sencilla - $8.000</span> <button onclick="agregar('H. Sencilla', 8000)" style="width:auto">ADD</button></div>
-            <div class="producto-card"><span>H. Especial - $13.000</span> <button onclick="agregar('H. Especial', 13000)" style="width:auto">ADD</button></div>
-            <div class="producto-card"><span>H. Super - $19.000</span> <button onclick="agregar('H. Super', 19000)" style="width:auto">ADD</button></div>
-            <div class="producto-card"><span>Salchipapa - $10.000</span> <button onclick="agregar('Salchipapa', 10000)" style="width:auto">ADD</button></div>
+            <div class="producto-card"><span>H. Sencilla - $8.000</span> <button onclick="agregar('H. Sencilla', 8000)" style="width:auto; padding:8px">AÑADIR</button></div>
+            <div class="producto-card"><span>H. Especial - $13.000</span> <button onclick="agregar('H. Especial', 13000)" style="width:auto; padding:8px">AÑADIR</button></div>
+            <div class="producto-card"><span>H. Super - $19.000</span> <button onclick="agregar('H. Super', 19000)" style="width:auto; padding:8px">AÑADIR</button></div>
+            <div class="producto-card"><span>Salchipapa - $10.000</span> <button onclick="agregar('Salchipapa', 10000)" style="width:auto; padding:8px">AÑADIR</button></div>
         </div>
 
-        <div style="margin-top:20px; border-top:2px dashed var(--oro); padding-top:20px">
-            <h3>Tu Carrito (Añade varios productos)</h3>
-            <div id="lista-carrito"></div>
-            <h2 style="text-align:center; color:var(--verde)">TOTAL: $<span id="total">0</span></h2>
-            <button onclick="enviarPedido()" style="background:var(--verde); color:white">CONFIRMAR PEDIDO</button>
+        <div style="margin-top:30px; border-top:2px dashed var(--oro); padding-top:20px">
+            <h3 style="text-align:center">Tu Pedido Detallado</h3>
+            <div id="lista-carrito">
+                <p style="text-align:center; color:#666">Carrito vacío</p>
+            </div>
+            <div class="total-box">TOTAL: $<span id="total">0</span></div>
+            <button onclick="enviarPedido()" style="background:var(--verde); color:white">ENVIAR A COCINA</button>
         </div>
     </div>
 
     <div id="p-carlos" class="seccion">
-        <h1 style="color:var(--verde)">COCINA</h1>
+        <h1 style="color:var(--verde); text-align:center">COCINA ACTIVA</h1>
         <div id="pedidos-realtime"></div>
-        <button onclick="location.reload()" style="background:#444; color:white">SALIR</button>
+        <button onclick="window.location.reload()" style="background:#444; color:white">SALIR</button>
     </div>
 </div>
 
 <script>
-    // --- IMPORTANTE: CONFIGURA ESTO ---
+    // --- CONFIGURACIÓN FIREBASE ---
     const firebaseConfig = { apiKey: "TU_API", databaseURL: "TU_URL", projectId: "TU_ID" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    
+    // Inicialización con captura de errores para que no bloquee el menú
+    try {
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+    } catch (e) {
+        console.error("Error al conectar con Firebase: ", e);
+    }
 
     let cliente = "";
     let carrito = [];
 
-    // Pedir permiso notificaciones
-    if (Notification.permission !== "granted") { Notification.requestPermission(); }
+    // Solicitar permiso notificaciones
+    if ("Notification" in window && Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
 
+    // FUNCIÓN CRÍTICA: Ahora separada de cualquier proceso que pueda fallar
     function entrarAlSistema() {
-        cliente = document.getElementById('nom-cli').value.trim();
-        if(cliente === "") return alert("Pon tu nombre");
+        const inputNombre = document.getElementById('nom-cli');
+        cliente = inputNombre.value.trim();
 
-        // CAMBIO DE PANTALLA FORZADO
+        if(cliente === "") {
+            alert("Por favor, escribe tu nombre.");
+            return;
+        }
+
+        // Ejecución inmediata del cambio de pantalla
         document.getElementById('p-inicio').classList.remove('activa');
         document.getElementById('p-menu').classList.add('activa');
-        document.getElementById('bienvenida').innerText = "Cliente: " + cliente;
+        document.getElementById('bienvenida').innerText = "Bienvenido, " + cliente;
+        
+        console.log("Cambiando al catálogo para: " + cliente);
     }
 
-    function agregar(n, p) {
-        carrito.push({ nombre: n, precio: p, nota: "" });
-        renderizar();
+    function agregar(nombre, precio) {
+        carrito.push({ nombre: nombre, precio: precio, nota: "" });
+        actualizarVistaCarrito();
     }
 
-    function renderizar() {
+    function actualizarVistaCarrito() {
         const div = document.getElementById('lista-carrito');
         div.innerHTML = "";
-        let t = 0;
+        let suma = 0;
+        
         carrito.forEach((prod, i) => {
-            t += prod.precio;
+            suma += prod.precio;
             div.innerHTML += `
                 <div class="carrito-item">
-                    <b>${prod.nombre} - $${prod.precio}</b>
-                    <textarea placeholder="Ej: Sin cebolla..." onchange="carrito[${i}].nota=this.value">${prod.nota}</textarea>
-                    <button onclick="carrito.splice(${i},1);renderizar()" style="background:red; color:white; padding:5px; height:auto; width:auto">Quitar</button>
+                    <div style="display:flex; justify-content:space-between">
+                        <strong>${prod.nombre}</strong>
+                        <span>$${prod.precio}</span>
+                    </div>
+                    <textarea placeholder="¿Qué quieres quitar de esta comida?" onchange="carrito[${i}].nota=this.value">${prod.nota}</textarea>
+                    <button onclick="quitarDelCarrito(${i})" style="background:red; color:white; padding:5px; height:auto; width:auto; font-size:12px; margin-top:5px">Quitar</button>
                 </div>`;
         });
-        document.getElementById('total').innerText = t;
+        document.getElementById('total').innerText = suma;
+    }
+
+    function quitarDelCarrito(index) {
+        carrito.splice(index, 1);
+        actualizarVistaCarrito();
     }
 
     function enviarPedido() {
-        if(carrito.length === 0) return alert("Carrito vacío");
-        const pedido = { cliente, items: carrito, total: document.getElementById('total').innerText, listo: false, avisado: false };
-        const ref = db.ref('pedidos/').push(pedido);
+        if(carrito.length === 0) return alert("Añade algo primero.");
         
-        alert("¡Enviado! Carlos ya lo tiene. Recibirás una notificación al terminar.");
-        
-        // ESCUCHA EN SEGUNDO PLANO
-        db.ref('pedidos/' + ref.key).on('value', s => {
-            const p = s.val();
-            if(p && p.listo && !p.avisado) {
-                if (Notification.permission === "granted") {
-                    new Notification("🍔 ¡Antojitos!", { body: "¡Tu pedido está listo!" });
-                }
-                alert("¡COMIDA LISTA!");
-                db.ref('pedidos/' + ref.key).update({ avisado: true });
-            }
-        });
-    }
+        const pedido = {
+            cliente: cliente,
+            items: carrito,
+            total: document.getElementById('total').innerText,
+            listo: false,
+            avisado: false,
+            timestamp: Date.now()
+        };
 
-    function irCocina() {
-        if(prompt("Clave:") === "antojitos2026") {
-            document.getElementById('p-inicio').classList.remove('activa');
-            document.getElementById('p-carlos').classList.add('activa');
-            cargarPedidos();
+        if(db) {
+            const ref = db.ref('pedidos/').push(pedido);
+            alert("¡Pedido enviado! Carlos lo está preparando.");
+            
+            // Escucha para la notificación en segundo plano
+            db.ref('pedidos/' + ref.key).on('value', s => {
+                const p = s.val();
+                if(p && p.listo && !p.avisado) {
+                    if (Notification.permission === "granted") {
+                        new Notification("🍔 Antojitos Avisa", { body: "¡" + cliente + ", tu pedido está listo!" });
+                    }
+                    alert("¡PEDIDO LISTO EN MOSTRADOR!");
+                    db.ref('pedidos/' + ref.key).update({ avisado: true });
+                }
+            });
+        } else {
+            alert("Error de conexión con la base de datos.");
         }
     }
 
-    function cargarPedidos() {
+    function irCocina() {
+        const pass = prompt("Clave de Admin:");
+        if(pass === "antojitos2026") {
+            document.getElementById('p-inicio').classList.remove('activa');
+            document.getElementById('p-carlos').classList.add('activa');
+            if(db) cargarPedidosCocina();
+        }
+    }
+
+    function cargarPedidosCocina() {
         db.ref('pedidos/').on('value', s => {
             const div = document.getElementById('pedidos-realtime');
             div.innerHTML = "";
@@ -139,10 +184,13 @@
                 const p = h.val();
                 if(!p.listo) {
                     let itemsHtml = p.items.map(i => `• ${i.nombre}: ${i.nota}`).join('<br>');
-                    div.innerHTML += `<div style="background:white; color:black; padding:15px; margin-bottom:10px; border-radius:10px;">
-                        <strong>${p.cliente}</strong><br>${itemsHtml}<br><b>$${p.total}</b><br>
-                        <button onclick="db.ref('pedidos/${h.key}').update({listo:true})" style="background:green; color:white">LISTO</button>
-                    </div>`;
+                    div.innerHTML += `
+                        <div style="background:white; color:black; padding:15px; margin-bottom:10px; border-radius:10px; border-left:8px solid #d4af37">
+                            <strong>CLIENTE: ${p.cliente}</strong><br>
+                            <div style="margin:10px 0">${itemsHtml}</div>
+                            <b>Total a cobrar: $${p.total}</b><br>
+                            <button onclick="db.ref('pedidos/${h.key}').update({listo:true})" style="background:green; color:white; margin-top:10px">ENTREGAR PEDIDO</button>
+                        </div>`;
                 }
             });
         });

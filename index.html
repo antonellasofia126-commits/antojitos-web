@@ -3,83 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - Sistema Voz & Tiempo</title>
+    <title>Antojitos - Sistema Profesional UPTAIT</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
     <style>
         :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; --rojo: #e74c3c; }
-        body { background: var(--negro); color: var(--oro); font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .seccion { display: none !important; padding: 20px; }
-        .activa { display: block !important; }
-        .container { max-width: 500px; margin: auto; background: #050505; min-height: 100vh; border: 1px solid #222; }
-        h1 { text-align: center; text-transform: uppercase; }
-        input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); font-weight: bold; }
-        button { background: var(--oro); color: #000; cursor: pointer; }
-        .cat { background: var(--oro); color: #000; padding: 8px; border-radius: 5px; margin: 20px 0 10px; text-align: center; font-size: 0.9em; font-weight: bold; }
-        .card { background: var(--gris); padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #222; }
-        .card-h { display: flex; justify-content: space-between; color: #fff; }
-        .btn-add { background: none; color: var(--oro); border: 1px solid var(--oro); width: auto; float: right; padding: 5px 10px; font-size: 0.8em; }
-        .fijo { position: sticky; bottom: 0; background: #000; padding: 15px; border-top: 2px solid var(--oro); text-align: center; }
-        .ticket { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 8px solid var(--verde); position: relative; }
+        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        
+        /* Control de pantallas */
+        .seccion { display: none; padding: 20px; box-sizing: border-box; }
+        .activa { display: block; }
+        
+        .container { max-width: 500px; margin: auto; background: #050505; min-height: 100vh; border-left: 1px solid #222; border-right: 1px solid #222; position: relative; }
+        
+        h1, h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); box-sizing: border-box; font-size: 16px; font-weight: bold; }
+        button { background: var(--oro); color: black; cursor: pointer; transition: 0.3s; }
+        button:active { transform: scale(0.98); }
+
+        /* Estilos Menú */
+        .cat-header { background: var(--oro); color: black; padding: 10px; border-radius: 5px; font-weight: bold; margin: 25px 0 10px 0; text-align: center; }
+        .card { background: var(--gris); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #222; }
+        .card-h { display: flex; justify-content: space-between; align-items: center; }
+        .card-h span:first-child { color: white; font-size: 1.1em; }
+        .card-d { color: #888; font-size: 0.85em; margin: 8px 0; line-height: 1.4; }
+        .btn-add { background: transparent; color: var(--oro); border: 1px solid var(--oro); width: auto; padding: 8px 15px; float: right; font-size: 0.8em; }
+
+        /* Footer Cliente */
+        .total-fijo { position: sticky; bottom: 0; background: #000; padding: 15px; border-top: 2px solid var(--oro); text-align: center; margin-top: 20px; }
+
+        /* Panel Carlos */
+        .ticket { background: white; color: black; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 8px solid var(--verde); position: relative; }
+        .cancelado { opacity: 0.5; border-left-color: var(--rojo); background: #fdd; }
+        .badge-can { background: var(--rojo); color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; position: absolute; right: 10px; top: 10px; }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <div id="p-ini" class="seccion activa">
+    <div id="p-inicio" class="seccion activa">
         <h1 style="margin-top:100px">ANTOJITOS</h1>
-        <button onclick="ir('p-log')">CLIENTE</button>
-        <button style="background:none; color:#fff" onclick="admin()">CARLOS (COCINA)</button>
+        <p style="text-align:center; color:#555">Sistema de Gestión de Pedidos</p>
+        <button onclick="navegar('p-login')">HACER UN PEDIDO</button>
+        <button onclick="accesoCarlos()" style="background:none; color:white; border:1px solid #333; margin-top:40px">PANEL DE CARLOS</button>
     </div>
 
-    <div id="p-log" class="seccion">
-        <h1>NOMBRE</h1>
-        <input type="text" id="user" placeholder="Tu nombre...">
-        <button onclick="menuInit()">VER MENÚ</button>
+    <div id="p-login" class="seccion">
+        <h1>BIENVENIDO</h1>
+        <p style="text-align:center">¿A nombre de quién el pedido?</p>
+        <input type="text" id="user-name" placeholder="Tu nombre completo">
+        <button onclick="iniciarMenu()">INGRESAR</button>
+        <button onclick="navegar('p-inicio')" style="background:none; border:none; color:grey">Volver</button>
     </div>
 
     <div id="p-menu" class="seccion">
-        <div id="lista"></div>
-        <div id="status" style="display:none; padding:15px; border:1px solid var(--verde); border-radius:10px; margin:10px 0;">
-            <p id="msg" style="text-align:center"></p>
-            <button id="btn-can" onclick="cancelar()" style="background:var(--rojo); color:#fff">CANCELAR (60s)</button>
+        <h2 id="saludo-cliente" style="color:white"></h2>
+        <div id="contenedor-productos"></div>
+        
+        <div id="area-estado" style="display:none; background:#111; padding:15px; border-radius:10px; margin:20px 0; border:1px solid var(--verde)">
+            <p id="texto-estado" style="text-align:center; margin:0"></p>
+            <button id="btn-cancelar" onclick="ejecutarCancelacion()" style="background:var(--rojo); color:white; margin-top:10px">CANCELAR PEDIDO (60s)</button>
         </div>
-        <div class="fijo" id="f-cli">
-            <h3 style="color:var(--verde)">TOTAL: $<span id="tot">0</span></h3>
-            <button onclick="pedir()" style="background:var(--verde); color:#fff">PEDIR YA</button>
+
+        <div class="total-fijo" id="footer-pedido">
+            <h3 style="color:var(--verde); margin:5px">TOTAL: $<span id="monto-total">0</span></h3>
+            <button onclick="enviarPedido()" style="background:var(--verde); color:white">ENVIAR A COCINA</button>
         </div>
     </div>
 
-    <div id="p-adm" class="seccion">
-        <h1 style="color:var(--verde)">COCINA</h1>
-        <div id="pedidos"></div>
-        <button onclick="location.reload()">SALIR</button>
+    <div id="p-carlos" class="seccion">
+        <h1 style="color:var(--verde)">SISTEMA DE COCINA</h1>
+        <div id="lista-pedidos-carlos"></div>
+        <button onclick="location.reload()" style="background:#222; color:white">CERRAR SESIÓN</button>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY", databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com", projectId: "antojitosweb" };
+    // Configuración Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY",
+        databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com",
+        projectId: "antojitosweb"
+    };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const data = [
-        {c:'POLLO', n:'1 Pieza', p:8000, d:'Ensalada y papa'}, {c:'POLLO', n:'2 Piezas', p:12000, d:'Ensalada y papa'}, {c:'POLLO', n:'3 Piezas', p:16000, d:'Ensalada y papa'}, {c:'POLLO', n:'4 Piezas', p:21000, d:'Ensalada y papa'}, {c:'POLLO', n:'8 Piezas', p:40000, d:'Ensalada y papa'},
-        {c:'SALCHIPAPA', n:'Personal', p:8000, d:'Papas, salchicha, queso'}, {c:'SALCHIPAPA', n:'Mediana', p:13000, d:'Mixta con tocineta'}, {c:'SALCHIPAPA', n:'Súper', p:19000, d:'Doble proteína y tocineta'},
-        {c:'HAMBURGUESAS', n:'Mini Croqueta', p:6000, d:'Clásica'}, {c:'HAMBURGUESAS', n:'Mini Pollo', p:7000, d:'Pollo crispy'}, {c:'HAMBURGUESAS', n:'Mini Mechada', p:8000, d:'Carne mechada'}, {c:'HAMBURGUESAS', n:'H. Antojitos', p:9000, d:'Huevo, tocineta, jamón'}, {c:'HAMBURGUESAS', n:'H. Momo', p:13000, d:'2 carnes, aguacate'}, {c:'HAMBURGUESAS', n:'H. Trifásica', p:19000, d:'Pollo, chuleta, carne'},
-        {c:'PERROS', n:'Hambruno', p:5000, d:'Sencillo'}, {c:'PERROS', n:'Especial', p:9000, d:'Con mechada'}, {c:'PERROS', n:'Americano', p:13000, d:'2 proteínas y tocino'}
+    // Base de datos del Menú
+    const menuData = [
+        {cat:'POLLO A LA BROASTER', nom:'1 Pieza', pre:8000, des:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'2 Piezas', pre:12000, des:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'3 Piezas', pre:16000, des:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'4 Piezas', pre:21000, des:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'8 Piezas', pre:40000, des:'Con ensalada y papa francesa'},
+        {cat:'SALCHIPAPAS', nom:'Personal "Ta bien"', pre:8000, des:'Papas, salchicha, vegetales y queso'},
+        {cat:'SALCHIPAPAS', nom:'Mediana "Gustico"', pre:13000, des:'Mixta (carne/pollo) y tocineta'},
+        {cat:'SALCHIPAPAS', nom:'Súper Antojitos', pre:19000, des:'Doble proteína y tocineta'},
+        {cat:'HAMBURGUESAS', nom:'Mini (Croqueta)', pre:6000, des:'Vegetales, papita y queso'},
+        {cat:'HAMBURGUESAS', nom:'Mini (Pollo)', pre:7000, des:'Pollo, vegetales y queso'},
+        {cat:'HAMBURGUESAS', nom:'Mini (Mechada)', pre:8000, des:'Carne mechada y vegetales'},
+        {cat:'HAMBURGUESAS', nom:'H. Antojitos', pre:9000, des:'Mechada, huevo, tocineta y jamón'},
+        {cat:'HAMBURGUESAS', nom:'H. Momo', pre:13000, des:'2 porciones, huevo, aguacate y jamón'},
+        {cat:'HAMBURGUESAS', nom:'H. Trifásica', pre:19000, des:'Pollo, chuleta, carne y aguacate'},
+        {cat:'PERROS', nom:'Hambruno', pre:5000, des:'Sencillo con papitas y queso'},
+        {cat:'PERROS', nom:'Especial', pre:9000, des:'Con carne o pollo desmechado'},
+        {cat:'PERROS', nom:'Americano', pre:13000, des:'2 proteínas, tocino y jamón'}
     ];
 
-    let cart = [], pid = null, t = 60, timer;
+    let carrito = [];
+    let miPedidoID = null;
+    let timerCancel;
+    let segundos = 60;
 
-    function voz(t) { const m = new SpeechSynthesisUtterance(t); m.lang='es-ES'; window.speechSynthesis.speak(m); }
-    function ir(id) { document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa')); document.getElementById(id).classList.add('activa'); }
-
-    function menuInit() {
-        if(!document.getElementById('user').value) return;
-        ir('p-menu');
-        let h = "", cat = "";
-        data.forEach(i => {
-            if(i.c !== cat) { cat = i.c; h += `<div class="cat">${cat}</div>`; }
-            h += `<div class="card"><div class="card-h"><span>${i.n}</span><span>$${i.p}</span></div><button class="btn-add" onclick="add('${i.n}',${i.p})">+ AÑADIR</button><div style="clear:both"></div></div>`;
-        });
-        document.getElementById('lista').innerHTML = h;
+    // Función de Voz
+    function hablar(mensaje) {
+        const synth = window.speechSynthesis;
+        const utter = new SpeechSynthesisUtterance(mensaje);
+        utter.lang = 'es-ES';
+        synth.speak(utter);
     }
+
+    // Navegación simple
+    function navegar(id) {
+        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+        document.getElementById(id).classList.add('activa');
+        window.scrollTo(0,0);
+    }
+
+    // Iniciar Menú
+    function iniciarMenu() {
+        const nombre = document.getElementById('user-name').value.trim();
+        if(!nombre) return alert("Por favor, ingresa tu nombre");
+        
+        document.getElementById('saludo-cliente').innerText = "HOLA, " + nombre.toUpperCase();
+        navegar('p-menu');
+        
+        let html = "";
+        let categoriaActual = "";
+        
+        menuData.forEach(prod => {
+            if(prod.cat !== categoriaActual) {
+                categoriaActual = prod.cat;
+                html += `<div class="cat-header">${categoriaActual}</div>`;
+            }
+            html += `
+                <div class="card">
+                    <div class="card-h"><span>${prod.nom}</span><span>$${prod.pre.toLocaleString()}</span></div>
+                    <p class="card-d">${prod.des}</p>
+                    <button class="btn-add" onclick="agregarAlCarrito('${prod.nom}', ${prod.pre})">+ AÑADIR</button>
+                    <div style="clear:both"></div>
+                </div>`;
+        });
+        document.getElementById('contenedor-productos').innerHTML = html;
+        hablar("Bienvenido a Antojitos. Selecciona tu pedido.");
+    }
+
+    function agregarAlCarrito(nombre, precio) {
+        carrito.push({nombre, precio});
+        const total = carrito.reduce((acc, p) => acc + p.precio, 0);
+        document.getElementById('monto-total').innerText = total.toLocaleString();
+    }
+
+    function enviarPedido() {
+        if(carrito.length === 0) return alert("El carrito está vacío");
+        
+        const nombreCli = document.getElementById('user-name').value;
+        const ref = db.ref('pedidos/').push({
+            cliente: nombreCli,
+            items: carrito,
+            total: document.getElementById('monto-total').innerText,
+            listo: false,
+            cancelado: false,
+            hora: new Date().toLocaleTimeString()
+        });
+        
+        miPedidoID = ref.key;
+        
+        // Bloquear interfaz y mostrar contador
+        document.getElementById('footer-pedido').style.display = 'none';
+        document.getElementById('area-estado').style.display = 'block';
+        document.getElementById('texto-estado').innerText = "Pedido enviado. Carlos está avisado.";
+        
+        iniciarContadorCancelacion();
+
+        // Escuchar si Carlos lo marca como listo
+        db.ref('pedidos/' + miPedidoID).on('value', snap => {
+            if(snap.val() && snap.val().listo) {
+                hablar("Tu pedido está listo. Puedes pasar a recogerlo. ¡Buen provecho!");
+                document.getElementById('area-estado').style.background = "var(--verde)";
+                document.getElementById('area-estado').style.color = "black";
+                document.getElementById('texto-estado').innerHTML = "<b>¡TU PEDIDO YA ESTÁ LISTO!</b>";
+                document.getElementById('btn-cancelar').style.display = "none";
+            }
+        });
+    }
+
+    function iniciarContadorCancelacion() {
+        segundos = 60;
+        timerCancel = setInterval(() => {
+            segundos--;
+            document.getElementById('btn-cancelar').innerText = `CANCELAR PEDIDO (${segundos}s)`;
+            if(segundos <= 0) {
+                clearInterval(timerCancel);
+                document.getElementById('btn-cancelar').style.display = "none";
+            }
+        }, 1000);
+    }
+
+    function ejecutarCancelacion() {
+        if(confirm("¿Estás seguro de cancelar tu pedido?")) {
+            db.ref('pedidos/' + miPedidoID).update({ cancelado: true });
+            clearInterval(timerCancel);
+            alert("Pedido cancelado.");
+            location.reload();
+        }
+    }
+
+    function accesoCarlos() {
+        if(prompt("Clave de acceso:") === "antojitos2026") {
+            navegar('p-carlos');
+            if(Notification.permission !== "granted") Notification.requestPermission();
+            
+            db.ref('pedidos/').on('value', snap => {
+                const contenedor = document.getElementById('lista-pedidos-carlos');
+                const cantidadAnterior = contenedor.childElementCount;
+                contenedor.innerHTML = "";
+                
+                snap.forEach(hijo => {
+                    const p = hijo.val();
+                    if(!p.listo) {
+                        const esCancelado = p.cancelado;
+                        let itemsHtml = p.items.map(i => `• ${i.nombre}`).join('<br>');
+                        
+                        contenedor.innerHTML += `
+                            <div class="ticket ${esCancelado ? 'cancelado' : ''}">
+                                ${esCancelado ? '<span class="badge-can">CANCELADO</span>' : ''}
+                                <b>CLIENTE: ${p.cliente.toUpperCase()}</b><br>
+                                <small>${p.hora}</small><br><hr>
+                                ${itemsHtml}<br><br>
+                                <b>TOTAL: $${p.total}</b><br>
+                                ${!esCancelado ? `<button onclick="marcarListo('${hijo.key}')" style="background:var(--verde); color:white; margin-top:10px">ENTREGAR PEDIDO</button>` : ''}
+                            </div>`;
+                        
+                        // Si se canceló un pedido que Carlos no había visto como cancelado
+                        if(esCancelado && !hijo.vistoVoz) {
+                            hablar("Atención Carlos, un pedido ha sido cancelado.");
+                            hijo.vistoVoz = true; // Local
+                        }
+                    }
+                });
+
+                // Notificación de nuevo pedido
+                if(contenedor.childElementCount > cantidadAnterior && cantidadAnterior !== 0) {
+                    hablar("Atención Carlos, tienes un nuevo pedido.");
+                    new Notification("🍔 NUEVO PEDIDO EN ANTOJITOS");
+                }
+            });
+        }
+    }
+
+    function marcarListo(id) {
+        db.ref('pedidos/' + id).update({ listo: true });
+    }
+</script>
+</body>
+</html>

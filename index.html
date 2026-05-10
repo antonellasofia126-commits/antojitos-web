@@ -3,115 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - Menú Digital</title>
-    
+    <title>Antojitos - Menú Profesional</title>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-database-compat.js"></script>
 
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
-        .container { max-width: 500px; background: white; padding: 20px; border-radius: 10px; margin: auto; box-shadow: 0px 4px 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #e67e22; }
-        .producto { border-bottom: 1px solid #ddd; padding: 10px 0; }
-        input, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; background-color: #27ae60; color: white; border: none; padding: 15px; font-size: 18px; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #2ecc71; }
-        .label-qty { font-weight: bold; font-size: 0.9em; }
+        body { background-color: #000; color: #d4af37; font-family: 'Segoe UI', sans-serif; padding: 10px; }
+        .container { 
+            max-width: 500px; margin: auto; border: 2px solid #d4af37; 
+            padding: 20px; border-radius: 15px; background: #111;
+            box-shadow: 0px 0px 15px rgba(212, 175, 55, 0.2);
+        }
+        h1 { text-align: center; font-size: 1.8em; color: #d4af37; text-shadow: 2px 2px #000; }
+        .pantalla { display: none; }
+        .activa { display: block; }
+        
+        input, textarea { 
+            width: 100%; padding: 12px; margin: 10px 0; 
+            background: #222; border: 1px solid #d4af37; 
+            color: #fff; border-radius: 8px; box-sizing: border-box;
+        }
+        
+        .producto-card { 
+            background: #1a1a1a; border: 1px solid #333; 
+            padding: 15px; border-radius: 10px; margin-bottom: 15px; 
+        }
+        
+        button { 
+            width: 100%; padding: 15px; background: #d4af37; 
+            color: #000; border: none; font-weight: bold; 
+            border-radius: 8px; cursor: pointer; font-size: 1em;
+        }
+        button:hover { background: #fff; color: #000; }
+        .total-box { text-align: center; font-size: 1.2em; margin: 15px 0; color: #2ecc71; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Antojitos 🍔</h1>
-    
-    <label>Tu Nombre:</label>
-    <input type="text" id="nombreCliente" placeholder="Ej. Maria Fernanda" required>
-
-    <div id="lista-productos">
-        <div class="producto">
-            <label class="label-qty">Hamburguesa Especial</label>
-            <input type="number" id="cant_hamburguesa" value="0" min="0">
-            <textarea id="obs_hamburguesa" placeholder="¿Cómo la quieres? (Ej. sin cebolla)"></textarea>
-        </div>
-
-        <div class="producto">
-            <label class="label-qty">Salchipapas</label>
-            <input type="number" id="cant_salchipapas" value="0" min="0">
-            <textarea id="obs_salchipapas" placeholder="¿Alguna salsa extra?"></textarea>
-        </div>
+    <div id="paso1" class="pantalla activa">
+        <h1>ANTOJITOS</h1>
+        <p style="text-align: center;">Bienvenido. Por favor, identifícate:</p>
+        <input type="text" id="nombreCliente" placeholder="Ingresa tu nombre completo">
+        <button onclick="irAlMenu()">INGRESAR COMO CLIENTE</button>
     </div>
 
-    <br>
-    <button onclick="enviarPedido()">Confirmar Pedido</button>
+    <div id="paso2" class="pantalla">
+        <h2 id="bienvenida" style="text-align: center;"></h2>
+        
+        <div class="producto-card">
+            <label>🍔 <strong>Hamburguesas</strong> (8k Sencilla / 13k Especial)</label>
+            <input type="number" id="cant_h" value="0" min="0" onchange="calcular()">
+            <textarea id="obs_h" placeholder="Ej: La 1era sin cebolla, la 2da con todo..."></textarea>
+        </div>
+
+        <div class="producto-card">
+            <label>🍟 <strong>Salchipapas</strong> (10k)</label>
+            <input type="number" id="cant_s" value="0" min="0" onchange="calcular()">
+            <textarea id="obs_s" placeholder="Especificaciones para tus salchipapas..."></textarea>
+        </div>
+
+        <div class="total-box">
+            Total a Pagar: $<span id="montoTotal">0</span>
+        </div>
+
+        <button onclick="enviarFinal()">CONFIRMAR PEDIDO</button>
+    </div>
 </div>
 
 <script>
-    // CONFIGURACIÓN DE FIREBASE (Reemplaza con tus datos reales)
+    // CONFIGURACIÓN DE FIREBASE (Usa tus credenciales aquí)
     const firebaseConfig = {
         apiKey: "TU_API_KEY",
-        authDomain: "tu-proyecto.firebaseapp.com",
         databaseURL: "https://tu-proyecto.firebaseio.com",
         projectId: "tu-proyecto",
-        storageBucket: "tu-proyecto.appspot.com",
-        messagingSenderId: "tu-id",
-        appId: "tu-app-id"
     };
-    
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
-    // Pedir permiso para notificaciones al entrar
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
+    let nombre = "";
+
+    function irAlMenu() {
+        nombre = document.getElementById('nombreCliente').value.trim();
+        if(nombre === "") return alert("Debes poner un nombre.");
+        
+        document.getElementById('paso1').classList.remove('activa');
+        document.getElementById('paso2').classList.add('activa');
+        document.getElementById('bienvenida').innerText = "Cliente: " + nombre;
     }
 
-    function enviarPedido() {
-        const nombre = document.getElementById('nombreCliente').value.trim();
-        
-        // Validación de Nombre
-        if (nombre === "") {
-            alert("¡Epa! Necesitamos tu nombre para preparar el pedido.");
-            return;
-        }
+    function calcular() {
+        let h = document.getElementById('cant_h').value * 10000; // Precio promedio ajustable
+        let s = document.getElementById('cant_s').value * 10000;
+        document.getElementById('montoTotal').innerText = h + s;
+    }
 
-        // Captura de datos específicos
+    function enviarFinal() {
         const pedido = {
             cliente: nombre,
-            detalles: {
-                hamburguesas: {
-                    cantidad: document.getElementById('cant_hamburguesa').value,
-                    notas: document.getElementById('obs_hamburguesa').value
-                },
-                salchipapas: {
-                    cantidad: document.getElementById('cant_salchipapas').value,
-                    notas: document.getElementById('obs_salchipapas').value
-                }
+            hamburguesas: {
+                cantidad: document.getElementById('cant_h').value,
+                detalles: document.getElementById('obs_h').value
             },
-            fecha: new Date().toLocaleString(),
-            estado: "Pendiente"
+            salchipapas: {
+                cantidad: document.getElementById('cant_s').value,
+                detalles: document.getElementById('obs_s').value
+            },
+            total: document.getElementById('montoTotal').innerText,
+            hora: new Date().toLocaleTimeString(),
+            fecha: new Date().toLocaleDateString()
         };
 
-        // Guardar en Firebase
-        database.ref('pedidos/').push(pedido)
-        .then(() => {
-            // Punto 2: Notificación y Mensaje de confirmación
-            alert(`¡Listo ${nombre}! Recibimos tu pedido. Retíralo en caja en 30 minutos.`);
-            
-            if (Notification.permission === "granted") {
-                new Notification("Antojitos", { body: "Tu pedido está en cocina. ¡En 30 min estará listo!" });
-            }
-
-            // Limpiar campos
-            document.getElementById('nombreCliente').value = "";
-            document.getElementById('cant_hamburguesa').value = "0";
-            document.getElementById('cant_salchipapas').value = "0";
-        })
-        .catch((error) => {
-            alert("Error al conectar con la base de datos.");
-            console.error(error);
+        db.ref('pedidos/').push(pedido).then(() => {
+            alert("¡Listo " + nombre + "! Tu pedido llegó a Carlos. Retira en 30 min.");
+            // REINICIO AUTOMÁTICO PARA EL SIGUIENTE CLIENTE
+            location.reload(); 
         });
     }
 </script>
-
 </body>
 </html>
+         
+

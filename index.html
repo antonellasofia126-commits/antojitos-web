@@ -3,179 +3,233 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - El Menú de Carlos</title>
+    <title>Antojitos - Menú Profesional</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
     <style>
-        :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; }
-        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; --blanco: #ffffff; }
+        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         
-        /* FUERZA BRUTA PARA PANTALLAS */
         .seccion { display: none !important; }
         .activa { display: block !important; }
 
-        .container { max-width: 550px; margin: auto; background: #0a0a0a; min-height: 100vh; padding: 20px; border-left: 2px solid var(--oro); border-right: 2px solid var(--oro); box-sizing: border-box; }
+        .container { max-width: 500px; margin: auto; background: #050505; min-height: 100vh; padding: 20px; border-left: 1px solid #222; border-right: 1px solid #222; box-sizing: border-box; }
         
-        h1, h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+        h1, h2 { text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 5px; }
+        .lema { text-align: center; color: #888; font-style: italic; font-size: 0.9em; margin-bottom: 25px; }
+
         input, button, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); box-sizing: border-box; font-size: 16px; }
+        button { background: var(--oro); color: black; font-weight: bold; cursor: pointer; border: none; text-transform: uppercase; }
         
-        button { background: var(--oro); color: black; font-weight: bold; cursor: pointer; border: none; }
+        /* Diseño de productos basado en las fotos */
+        .categoria-header { background: var(--oro); color: black; padding: 8px; border-radius: 5px; font-weight: bold; margin: 30px 0 10px 0; text-align: center; }
+        .producto-card { background: var(--gris); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #222; }
+        .info-principal { display: flex; justify-content: space-between; align-items: flex-start; }
+        .info-principal h4 { margin: 0; color: var(--blanco); font-size: 1.1em; }
+        .precio { color: var(--verde); font-weight: bold; font-size: 1.1em; }
+        .detalles { margin: 8px 0; color: #aaa; font-size: 0.85em; line-height: 1.4; }
         
-        /* Diseño del Catálogo Real de Carlos */
-        .categoria { background: var(--oro); color: black; padding: 5px 15px; border-radius: 5px; font-weight: bold; margin-top: 20px; display: inline-block; }
-        .producto { background: #1f1f1f; padding: 15px; border-radius: 12px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .producto h4 { margin: 0; color: white; }
-        .producto p { margin: 5px 0 0 0; color: var(--verde); font-weight: bold; }
-        
-        /* Carrito */
-        .carrito-box { margin-top: 30px; border-top: 2px dashed #444; padding-top: 20px; }
-        .item-sel { background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #222; }
-        textarea { background: #111; color: #ccc; height: 60px; resize: none; }
-        .total { font-size: 2em; text-align: center; color: var(--verde); padding: 15px; border: 2px solid var(--verde); margin: 15px 0; border-radius: 10px; }
+        .btn-add { background: transparent; color: var(--oro); border: 1px solid var(--oro); padding: 8px; font-size: 0.8em; margin: 5px 0 0 0; width: auto; float: right; }
+
+        /* Carrito y totales */
+        .carrito-seccion { margin-top: 40px; border-top: 2px dashed #333; padding-top: 20px; }
+        .item-comprado { background: #000; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #222; }
+        textarea { background: #0a0a0a; color: white; height: 55px; border-color: #333; font-size: 14px; }
+        .total-box { font-size: 2.2em; text-align: center; color: var(--verde); margin: 20px 0; font-weight: bold; border: 2px solid var(--verde); padding: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="p-inicio" class="seccion activa">
-        <h1 style="margin-top:50px">ANTOJITOS 🍔</h1>
-        <p style="text-align:center; color:#888">El sabor original de Carlos</p>
-        <input type="text" id="nom-cli" placeholder="Escribe tu nombre para pedir">
-        <button type="button" id="btn-entrar">VER EL MENÚ DE CARLOS</button>
-        <p onclick="irAdmin()" style="text-align:center; margin-top:60px; color:#333; cursor:pointer">Acceso Admin</p>
+        <h1 style="margin-top:60px">ANTOJITOS</h1>
+        <p class="lema">"Es más que un antojito y algo más"</p>
+        <input type="text" id="user-name" placeholder="Escribe tu nombre para el pedido">
+        <button onclick="irAlMenu()">VER CATÁLOGO REAL</button>
+        <p onclick="irAdmin()" style="text-align:center; color:#222; margin-top:80px; cursor:pointer">Acceso Carlos</p>
     </div>
 
     <div id="p-menu" class="seccion">
-        <h2 id="hola-user"></h2>
-        
-        <div class="categoria">Hamburguesas</div>
-        <div class="producto"><div><h4>H. Mini</h4><p>$8.000</p></div><button onclick="add('H. Mini', 8000)" style="width:auto">AÑADIR</button></div>
-        <div class="producto"><div><h4>H. Momo</h4><p>$13.000</p></div><button onclick="add('H. Momo', 13000)" style="width:auto">AÑADIR</button></div>
-        <div class="producto"><div><h4>H. Trifásica</h4><p>$18.000</p></div><button onclick="add('H. Trifásica', 18000)" style="width:auto">AÑADIR</button></div>
-        <div class="producto"><div><h4>H. Antojitos</h4><p>$22.000</p></div><button onclick="add('H. Antojitos', 22000)" style="width:auto">AÑADIR</button></div>
+        <h2 id="saludo"></h2>
 
-        <div class="categoria">Perros y Salchipapas</div>
-        <div class="producto"><div><h4>Perro Caliente</h4><p>$8.000</p></div><button onclick="add('Perro Caliente', 8000)" style="width:auto">AÑADIR</button></div>
-        <div class="producto"><div><h4>Salchipapa Pequeña</h4><p>$10.000</p></div><button onclick="add('Salchipapa P', 10000)" style="width:auto">AÑADIR</button></div>
-        <div class="producto"><div><h4>Salchipapa Grande</h4><p>$18.000</p></div><button onclick="add('Salchipapa G', 18000)" style="width:auto">AÑADIR</button></div>
-
-        <div class="categoria">Pollo</div>
-        <div class="producto"><div><h4>Pollo Broaster</h4><p>$9.000</p></div><button onclick="add('Pollo Broaster', 9000)" style="width:auto">AÑADIR</button></div>
-
-        <div class="carrito-box">
-            <h3>Tu Pedido Detallado</h3>
-            <div id="lista-carrito"></div>
-            <div class="total">TOTAL: $<span id="t-p">0</span></div>
-            <button onclick="enviarPedido()" style="background:var(--verde); color:white">ENVIAR A CARLOS</button>
+        <div class="categoria-header">POLLO A LA BROASTER</div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>1 Pieza de pollo</h4><span class="precio">8.000</span></div>
+            <p class="detalles">Ensalada, papa a la francesa.</p>
+            <button class="btn-add" onclick="agregar('1 Pieza Pollo', 8000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
         </div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>2 Piezas de pollo</h4><span class="precio">12.000</span></div>
+            <p class="detalles">Ensalada, papa a la francesa.</p>
+            <button class="btn-add" onclick="agregar('2 Piezas Pollo', 12000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>8 Piezas de pollo</h4><span class="precio">40.000</span></div>
+            <p class="detalles">Ensalada, papa a la francesa.</p>
+            <button class="btn-add" onclick="agregar('8 Piezas Pollo', 40000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+
+        <div class="categoria-header">SALCHIPAPA</div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>Salchipapa "Ta' bien"</h4><span class="precio">8.000</span></div>
+            <p class="detalles">Papas fritas, salchicha, vegetales, queso.</p>
+            <button class="btn-add" onclick="agregar('Salchipapa Ta bien', 8000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>Salchipapa "Gustico"</h4><span class="precio">13.000</span></div>
+            <p class="detalles">Papas, salchicha, vegetales, queso, tocineta y porción mixta carne/pollo.</p>
+            <button class="btn-add" onclick="agregar('Salchipapa Gustico', 13000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>Salchipapa "Súper Antojitos"</h4><span class="precio">19.000</span></div>
+            <p class="detalles">Papas, salchicha, vegetales, queso, 2 porciones de proteína, tocineta.</p>
+            <button class="btn-add" onclick="agregar('Salchipapa Súper', 19000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+
+        <div class="categoria-header">HAMBURGUESAS</div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>Hamburguesa Mini</h4><span class="precio">6.000</span></div>
+            <p class="detalles">Pan, croqueta de carne, vegetales, papita, queso, salsa.</p>
+            <button class="btn-add" onclick="agregar('H. Mini', 6000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>H. "Momo"</h4><span class="precio">13.000</span></div>
+            <p class="detalles">Dos carnes o pollo, queso, huevo, aguacate, vegetales, tocineta, jamón.</p>
+            <button class="btn-add" onclick="agregar('H. Momo', 13000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+
+        <div class="categoria-header">PERROS</div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>Perro Hambruno</h4><span class="precio">5.000</span></div>
+            <p class="detalles">Pan, salchicha, papitas, queso, salsas, vegetales.</p>
+            <button class="btn-add" onclick="agregar('Perro Hambruno', 5000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+        <div class="producto-card">
+            <div class="info-principal"><h4>Perro Americano</h4><span class="precio">13.000</span></div>
+            <p class="detalles">Pan, salchicha, papitas, salsas, dos proteínas, tocino, jamón, vegetales.</p>
+            <button class="btn-add" onclick="agregar('Perro Americano', 13000)">+ AÑADIR</button>
+            <div style="clear:both"></div>
+        </div>
+
+        <div class="carrito-seccion">
+            <h3 style="text-align:center">MI CARRITO</h3>
+            <div id="lista-orden"></div>
+            <div class="total-box">TOTAL: $<span id="total-val">0</span></div>
+            <button onclick="finalizarPedido()" style="background:var(--verde); color:white; font-size:1.1em">CONFIRMAR Y ENVIAR</button>
+        </div>
+        <br><br>
     </div>
 
     <div id="p-admin" class="seccion">
-        <h1 style="color:var(--verde)">COCINA ACTIVA</h1>
-        <div id="comandas"></div>
-        <button onclick="location.reload()" style="background:#444; color:white">SALIR</button>
+        <h1 style="color:var(--verde)">SISTEMA COCINA</h1>
+        <div id="lista-pedidos-admin"></div>
+        <button onclick="location.reload()" style="background:#222; color:white">CERRAR PANEL</button>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE: Pon tus datos aquí ---
-    const config = { apiKey: "TU_API", databaseURL: "TU_URL", projectId: "TU_ID" };
-    let db;
-    try {
-        firebase.initializeApp(config);
-        db = firebase.database();
-    } catch(e) { console.log("Firebase no cargó todavía"); }
-
-    let cliente = "";
-    let carrito = [];
-
-    // BOTÓN ENTRAR: Ahora es instantáneo, no espera a Firebase
-    document.getElementById('btn-entrar').onclick = function() {
-        cliente = document.getElementById('nom-cli').value.trim();
-        if(cliente === "") return alert("Pon tu nombre");
-
-        document.getElementById('p-inicio').classList.remove('activa');
-        document.getElementById('p-menu').classList.add('activa');
-        document.getElementById('hola-user').innerText = "Cliente: " + cliente;
-        window.scrollTo(0,0);
+    // CREDENCIALES DE TU PROYECTO
+    const firebaseConfig = {
+        apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY",
+        authDomain: "antojitosweb.firebaseapp.com",
+        databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com",
+        projectId: "antojitosweb",
+        storageBucket: "antojitosweb.firebasestorage.app",
+        messagingSenderId: "1018883428835",
+        appId: "1:1018883428835:web:603bab37bcacc37da010d6"
     };
 
-    function add(n, p) {
-        carrito.push({ nombre: n, precio: p, nota: "" });
-        render();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let clienteActual = "";
+    let miPedido = [];
+
+    function irAlMenu() {
+        clienteActual = document.getElementById('user-name').value.trim();
+        if(!clienteActual) return alert("Por favor escribe tu nombre");
+        document.getElementById('p-inicio').classList.remove('activa');
+        document.getElementById('p-menu').classList.add('activa');
+        document.getElementById('saludo').innerText = "Hola, " + clienteActual;
+        window.scrollTo(0,0);
     }
 
-    function render() {
-        const div = document.getElementById('lista-carrito');
-        div.innerHTML = "";
+    function agregar(nombre, precio) {
+        miPedido.push({ nombre: nombre, precio: precio, nota: "" });
+        renderizarCarrito();
+    }
+
+    function renderizarCarrito() {
+        const contenedor = document.getElementById('lista-orden');
+        contenedor.innerHTML = "";
         let suma = 0;
-        carrito.forEach((item, index) => {
+        miPedido.forEach((item, index) => {
             suma += item.precio;
-            div.innerHTML += `
-                <div class="item-sel">
-                    <b>${item.nombre} - $${item.precio}</b>
-                    <textarea placeholder="Ej: Sin salsa, sin cebolla..." onchange="carrito[${index}].nota=this.value">${item.nota}</textarea>
-                    <button onclick="carrito.splice(${index},1);render()" style="background:red; color:white; width:auto; padding:5px; font-size:12px; border:none">Eliminar</button>
+            contenedor.innerHTML += `
+                <div class="item-comprado">
+                    <div style="display:flex; justify-content:space-between">
+                        <b>${item.nombre}</b>
+                        <span>$${item.precio}</span>
+                    </div>
+                    <textarea placeholder="Ej: Sin cebolla, salsas aparte..." onchange="miPedido[${index}].nota=this.value">${item.nota}</textarea>
+                    <button onclick="miPedido.splice(${index},1);renderizarCarrito()" style="background:red; color:white; width:auto; padding:5px; font-size:11px">Quitar</button>
                 </div>`;
         });
-        document.getElementById('t-p').innerText = suma;
+        document.getElementById('total-val').innerText = suma;
     }
 
-    function enviarPedido() {
-        if(carrito.length === 0) return alert("El carrito está vacío");
-        if(!db) return alert("Error: Firebase no está configurado.");
-
-        const pedido = {
-            cliente: cliente,
-            productos: carrito,
-            total: document.getElementById('t-p').innerText,
-            listo: false,
-            timestamp: new Date().toLocaleTimeString()
+    function finalizarPedido() {
+        if(miPedido.length === 0) return alert("Añade algo al carrito primero.");
+        const envio = {
+            cliente: clienteActual,
+            productos: miPedido,
+            total: document.getElementById('total-val').innerText,
+            hora: new Date().toLocaleTimeString(),
+            listo: false
         };
-
-        const ref = db.ref('pedidos/').push(pedido);
-        alert("¡Pedido enviado! Carlos ya lo tiene.");
-
-        // Notificación cuando esté listo
-        db.ref('pedidos/' + ref.key).on('value', s => {
-            const p = s.val();
-            if(p && p.listo) {
-                alert("¡ANTOJITOS AVISA: Tu pedido ya está listo!");
-            }
-        });
+        db.ref('pedidos/').push(envio);
+        alert("¡Pedido enviado! Carlos lo está preparando.");
+        miPedido = [];
+        renderizarCarrito();
     }
 
     function irAdmin() {
-        if(prompt("Clave Admin:") === "antojitos2026") {
+        if(prompt("Clave de Carlos:") === "antojitos2026") {
             document.getElementById('p-inicio').classList.remove('activa');
             document.getElementById('p-admin').classList.add('activa');
-            escuchar();
+            escucharBaseDatos();
         }
     }
 
-    function escuchar() {
+    function escucharBaseDatos() {
         db.ref('pedidos/').on('value', snap => {
-            const div = document.getElementById('comandas');
+            const div = document.getElementById('lista-pedidos-admin');
             div.innerHTML = "";
-            snap.forEach(h => {
-                const p = h.val();
+            snap.forEach(hijo => {
+                const p = hijo.val();
                 if(!p.listo) {
-                    let items = p.productos.map(i => `• ${i.nombre}: ${i.nota}`).join('<br>');
+                    let itemsHtml = p.productos.map(i => `• ${i.nombre} (${i.nota})`).join('<br>');
                     div.innerHTML += `
-                        <div style="background:white; color:black; padding:15px; margin-bottom:10px; border-radius:10px; border-left:10px solid var(--oro)">
-                            <strong>${p.cliente}</strong> (${p.timestamp})<br>${items}<br>
+                        <div style="background:white; color:black; padding:15px; margin-bottom:10px; border-radius:8px">
+                            <strong>${p.cliente}</strong> <small>${p.hora}</small><br>
+                            ${itemsHtml}<br>
                             <b>Total: $${p.total}</b><br>
-                            <button onclick="marcarListo('${h.key}')" style="background:green; color:white; width:100%; margin-top:10px">ENTREGAR PEDIDO</button>
+                            <button onclick="db.ref('pedidos/${hijo.key}').update({listo:true})" style="background:green; color:white; width:100%; margin-top:10px">MARCAR COMO ENTREGADO</button>
                         </div>`;
                 }
             });
         });
-    }
-
-    function marcarListo(id) {
-        db.ref('pedidos/' + id).update({ listo: true });
     }
 </script>
 </body>

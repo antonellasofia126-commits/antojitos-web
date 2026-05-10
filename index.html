@@ -3,108 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - Catálogo Oficial</title>
+    <title>Antojitos - Sistema Voz & Tiempo</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
-        :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; }
-        body { background-color: var(--negro); color: var(--oro); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        .seccion { display: none !important; }
+        :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; --rojo: #e74c3c; }
+        body { background: var(--negro); color: var(--oro); font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .seccion { display: none !important; padding: 20px; }
         .activa { display: block !important; }
-        .container { max-width: 500px; margin: auto; background: #050505; min-height: 100vh; padding: 20px; border-left: 1px solid #222; }
-        h1 { text-align: center; letter-spacing: 3px; margin-top: 40px; }
-        input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); box-sizing: border-box; font-size: 16px; }
-        button { background: var(--oro); color: black; font-weight: bold; cursor: pointer; border: none; }
-        .cat-header { background: var(--oro); color: black; padding: 10px; border-radius: 5px; font-weight: bold; margin: 25px 0 10px 0; text-align: center; }
-        .card { background: var(--gris); padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #222; }
-        .card-h { display: flex; justify-content: space-between; font-weight: bold; color: white; }
-        .card-d { color: #888; font-size: 0.85em; margin: 8px 0; }
-        .btn-add { background: transparent; color: var(--oro); border: 1px solid var(--oro); padding: 5px 15px; width: auto; float: right; font-size: 0.8em; }
-        .total-fijo { position: sticky; bottom: 0; background: #000; padding: 15px; border-top: 2px solid var(--oro); text-align: center; }
+        .container { max-width: 500px; margin: auto; background: #050505; min-height: 100vh; border: 1px solid #222; }
+        h1 { text-align: center; text-transform: uppercase; }
+        input, button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--oro); font-weight: bold; }
+        button { background: var(--oro); color: #000; cursor: pointer; }
+        .cat { background: var(--oro); color: #000; padding: 8px; border-radius: 5px; margin: 20px 0 10px; text-align: center; font-size: 0.9em; font-weight: bold; }
+        .card { background: var(--gris); padding: 12px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #222; }
+        .card-h { display: flex; justify-content: space-between; color: #fff; }
+        .btn-add { background: none; color: var(--oro); border: 1px solid var(--oro); width: auto; float: right; padding: 5px 10px; font-size: 0.8em; }
+        .fijo { position: sticky; bottom: 0; background: #000; padding: 15px; border-top: 2px solid var(--oro); text-align: center; }
+        .ticket { background: #fff; color: #000; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 8px solid var(--verde); position: relative; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <div id="p-login" class="seccion activa">
-        <h1>ANTOJITOS</h1>
-        <input type="text" id="user" placeholder="¿Cuál es tu nombre?">
-        <button onclick="entrar()">VER MENÚ</button>
+    <div id="p-ini" class="seccion activa">
+        <h1 style="margin-top:100px">ANTOJITOS</h1>
+        <button onclick="ir('p-log')">CLIENTE</button>
+        <button style="background:none; color:#fff" onclick="admin()">CARLOS (COCINA)</button>
+    </div>
+
+    <div id="p-log" class="seccion">
+        <h1>NOMBRE</h1>
+        <input type="text" id="user" placeholder="Tu nombre...">
+        <button onclick="menuInit()">VER MENÚ</button>
     </div>
 
     <div id="p-menu" class="seccion">
-        <h2 id="hola" style="text-align:center"></h2>
-        <div id="lista-productos"></div>
-        
-        <div class="total-fijo">
-            <h3 style="color:var(--verde)">TOTAL: $<span id="t-monto">0</span></h3>
-            <button onclick="pedir()" style="background:var(--verde); color:white">ENVIAR PEDIDO</button>
+        <div id="lista"></div>
+        <div id="status" style="display:none; padding:15px; border:1px solid var(--verde); border-radius:10px; margin:10px 0;">
+            <p id="msg" style="text-align:center"></p>
+            <button id="btn-can" onclick="cancelar()" style="background:var(--rojo); color:#fff">CANCELAR (60s)</button>
         </div>
+        <div class="fijo" id="f-cli">
+            <h3 style="color:var(--verde)">TOTAL: $<span id="tot">0</span></h3>
+            <button onclick="pedir()" style="background:var(--verde); color:#fff">PEDIR YA</button>
+        </div>
+    </div>
+
+    <div id="p-adm" class="seccion">
+        <h1 style="color:var(--verde)">COCINA</h1>
+        <div id="pedidos"></div>
+        <button onclick="location.reload()">SALIR</button>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY",
-        databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com",
-        projectId: "antojitosweb",
-    };
+    const firebaseConfig = { apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY", databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com", projectId: "antojitosweb" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    const menu = [
-        {c:'POLLO A LA BROASTER', n:'1 Pieza', p:8000, d:'Ensalada y papa francesa'},
-        {c:'POLLO A LA BROASTER', n:'2 Piezas', p:12000, d:'Ensalada y papa francesa'},
-        {c:'POLLO A LA BROASTER', n:'3 Piezas', p:16000, d:'Ensalada y papa francesa'},
-        {c:'POLLO A LA BROASTER', n:'4 Piezas', p:21000, d:'Ensalada y papa francesa'},
-        {c:'POLLO A LA BROASTER', n:'8 Piezas', p:40000, d:'Ensalada y papa francesa'},
-        {c:'SALCHIPAPAS', n:'Personal "Ta bien"', p:8000, d:'Papas, salchicha, vegetales, queso'},
-        {c:'SALCHIPAPAS', n:'Mediana "Gustico"', p:13000, d:'Tocineta, porción mixta carne/pollo'},
-        {c:'SALCHIPAPAS', n:'Súper Antojitos', p:19000, d:'2 porciones de proteína, tocineta'},
-        {c:'HAMBURGUESAS', n:'H. Mini (Croqueta)', p:6000, d:'Carne, vegetales, queso, salsa'},
-        {c:'HAMBURGUESAS', n:'H. Mini (Pollo)', p:7000, d:'Pollo, vegetales, queso, salsa'},
-        {c:'HAMBURGUESAS', n:'H. Mini (Mechada)', p:8000, d:'Carne mechada, vegetales, queso'},
-        {c:'HAMBURGUESAS', n:'H. "Antojitos"', p:9000, d:'Carne mechada, huevo, tocineta, jamón'},
-        {c:'HAMBURGUESAS', n:'H. "Momo"', p:13000, d:'2 carnes o pollo, huevo, aguacate, jamón'},
-        {c:'HAMBURGUESAS', n:'H. "Trifásica"', p:19000, d:'Pollo, chuleta, carne, huevo, aguacate'},
-        {c:'PERROS', n:'Perro Hambruno', p:5000, d:'Salchicha, papitas, queso, vegetales'},
-        {c:'PERROS', n:'Perro Especial', p:9000, d:'Salchicha, carne/pollo desmechado, jamón'},
-        {c:'PERROS', n:'Perro Americano', p:13000, d:'Salchicha, 2 proteínas, tocino, jamón'}
+    const data = [
+        {c:'POLLO', n:'1 Pieza', p:8000, d:'Ensalada y papa'}, {c:'POLLO', n:'2 Piezas', p:12000, d:'Ensalada y papa'}, {c:'POLLO', n:'3 Piezas', p:16000, d:'Ensalada y papa'}, {c:'POLLO', n:'4 Piezas', p:21000, d:'Ensalada y papa'}, {c:'POLLO', n:'8 Piezas', p:40000, d:'Ensalada y papa'},
+        {c:'SALCHIPAPA', n:'Personal', p:8000, d:'Papas, salchicha, queso'}, {c:'SALCHIPAPA', n:'Mediana', p:13000, d:'Mixta con tocineta'}, {c:'SALCHIPAPA', n:'Súper', p:19000, d:'Doble proteína y tocineta'},
+        {c:'HAMBURGUESAS', n:'Mini Croqueta', p:6000, d:'Clásica'}, {c:'HAMBURGUESAS', n:'Mini Pollo', p:7000, d:'Pollo crispy'}, {c:'HAMBURGUESAS', n:'Mini Mechada', p:8000, d:'Carne mechada'}, {c:'HAMBURGUESAS', n:'H. Antojitos', p:9000, d:'Huevo, tocineta, jamón'}, {c:'HAMBURGUESAS', n:'H. Momo', p:13000, d:'2 carnes, aguacate'}, {c:'HAMBURGUESAS', n:'H. Trifásica', p:19000, d:'Pollo, chuleta, carne'},
+        {c:'PERROS', n:'Hambruno', p:5000, d:'Sencillo'}, {c:'PERROS', n:'Especial', p:9000, d:'Con mechada'}, {c:'PERROS', n:'Americano', p:13000, d:'2 proteínas y tocino'}
     ];
 
-    let carrito = [];
+    let cart = [], pid = null, t = 60, timer;
 
-    function entrar() {
-        if(!document.getElementById('user').value) return alert("Escribe tu nombre");
-        document.getElementById('p-login').classList.remove('activa');
-        document.getElementById('p-menu').classList.add('activa');
-        document.getElementById('hola').innerText = "Hola, " + document.getElementById('user').value;
-        
-        let html = "", cat = "";
-        menu.forEach(i => {
-            if(i.c !== cat) { cat = i.c; html += `<div class="cat-header">${cat}</div>`; }
-            html += `<div class="card"><div class="card-h"><span>${i.n}</span><span>$${i.p}</span></div>
-                     <p class="card-d">${i.d}</p><button class="btn-add" onclick="add('${i.n}',${i.p})">Añadir</button><div style="clear:both"></div></div>`;
+    function voz(t) { const m = new SpeechSynthesisUtterance(t); m.lang='es-ES'; window.speechSynthesis.speak(m); }
+    function ir(id) { document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa')); document.getElementById(id).classList.add('activa'); }
+
+    function menuInit() {
+        if(!document.getElementById('user').value) return;
+        ir('p-menu');
+        let h = "", cat = "";
+        data.forEach(i => {
+            if(i.c !== cat) { cat = i.c; h += `<div class="cat">${cat}</div>`; }
+            h += `<div class="card"><div class="card-h"><span>${i.n}</span><span>$${i.p}</span></div><button class="btn-add" onclick="add('${i.n}',${i.p})">+ AÑADIR</button><div style="clear:both"></div></div>`;
         });
-        document.getElementById('lista-productos').innerHTML = html;
+        document.getElementById('lista').innerHTML = h;
     }
-
-    function add(n, p) {
-        carrito.push({n, p});
-        document.getElementById('t-monto').innerText = carrito.reduce((s, i) => s + i.p, 0);
-    }
-
-    function pedir() {
-        if(carrito.length === 0) return alert("Añade algo primero");
-        db.ref('pedidos/').push({
-            cliente: document.getElementById('user').value,
-            items: carrito,
-            total: document.getElementById('t-monto').innerText,
-            hora: new Date().toLocaleTimeString()
-        });
-        alert("¡Pedido enviado!");
-        location.reload();
-    }
-</script>
-</body>
-</html>

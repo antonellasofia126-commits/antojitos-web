@@ -164,23 +164,26 @@
 
     function procesarPedido() {
         if(!carrito.length) return;
-        const tiempoAhora = Date.now();
         const ref = db.ref('pedidos/').push({
             cliente: document.getElementById('nombre-usuario').value,
             items: carrito,
             total: document.getElementById('monto-carrito').innerText,
-            listo: false, cancelado: false, timestamp: tiempoAhora
+            listo: false, cancelado: false, timestamp: Date.now()
         });
         miPedidoRef = ref.key;
         document.getElementById('barra-pedido').style.display = 'none';
         document.getElementById('area-seguimiento').style.display = 'block';
         document.getElementById('texto-seguimiento').innerText = "Enviado a Carlos.";
         
-        // Temporizador para quitar el botón de cancelar después de 60 segundos
+        // --- AQUÍ ESTÁN LOS 60 SEGUNDOS ---
         setTimeout(() => {
-            const btn = document.getElementById('btn-cancelar-pedido');
-            if(btn) btn.style.display = 'none';
-        }, 60000);
+            const btnCan = document.getElementById('btn-cancelar-pedido');
+            if(btnCan) {
+                btnCan.style.display = 'none';
+                console.log("Tiempo de cancelación agotado.");
+            }
+        }, 60000); 
+        // ----------------------------------
 
         db.ref('pedidos/' + miPedidoRef).on('value', snap => {
             const p = snap.val();
@@ -213,6 +216,8 @@
                 contenedor.innerHTML = "";
                 snap.forEach(hijo => {
                     const p = hijo.val();
+                    
+                    // Solo mostramos si no está listo y no está cancelado
                     if(!p.listo && !p.cancelado) {
                         cuentaActual++;
                         let listH = p.items.map(i => `• ${i.nombre} ${i.nota ? `<div class="nota-especial">OJO: ${i.nota}</div>` : ''}`).join('<br>');
@@ -225,11 +230,13 @@
                                 <button onclick="db.ref('pedidos/${hijo.key}').update({listo:true})" style="background:var(--verde); color:white; margin-top:10px">ENTREGAR</button>
                             </div>`;
                     }
+
                     if(p.cancelado && !p.vistoCan) { 
                         if(audioListo) sistemaVoz("Carlos, un pedido fue cancelado.");
                         db.ref('pedidos/' + hijo.key).update({ vistoCan: true });
                     }
                 });
+
                 if(historialLocal !== -1 && cuentaActual > historialLocal) {
                     if(audioListo) sistemaVoz("¡Atención Carlos! Tienes un nuevo pedido.");
                 }

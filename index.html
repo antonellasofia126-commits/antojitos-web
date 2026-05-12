@@ -53,7 +53,11 @@
 
     <div id="p-carlos" class="seccion">
         <h2 style="color:var(--verde); text-align:center">PANEL DE CONTROL</h2>
-        <div class="caja-total">💰 VENTAS DEL DÍA: $<span id="suma-dinero">0</span></div>
+        
+        <!-- BOTÓN DE ACTIVACIÓN DE AUDIO REINSTALADO -->
+        <button id="btn-audio" onclick="activarAudio()" style="background:var(--rojo); color:white; margin-bottom:10px;">🔔 ACTIVAR SONIDO DE PEDIDOS</button>
+
+        <div class="caja-total">💰 VENTAS DE HOY: $<span id="suma-dinero">0</span></div>
         
         <button onclick="toggleEditor()" style="background:#222; color:var(--oro)">⚙️ EDITAR MENÚ E INGREDIENTES</button>
         
@@ -77,7 +81,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // MENÚ COMPLETO BASADO EN LAS IMÁGENES PROPORCIONADAS
     let menuDinamico = [
         {cat:'POLLO A LA BROASTER', nom:'1 pieza de pollo', pre:8000, desc:'ensalada, papa a la francesa'},
         {cat:'POLLO A LA BROASTER', nom:'2 piezas de pollo', pre:12000, desc:'ensalada, papa a la francesa'},
@@ -99,18 +102,22 @@
     ];
 
     let carrito = [];
+    let audioActivado = false;
 
-    // NOTIFICACIONES EN SEGUNDO PLANO
-    if (Notification.permission !== "granted") {
-        Notification.requestPermission();
+    function activarAudio() {
+        audioActivado = true;
+        document.getElementById('btn-audio').style.background = "var(--verde)";
+        document.getElementById('btn-audio').innerText = "🔔 SONIDO ACTIVADO";
+        // Reproducir un sonido corto para confirmar
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+        audio.play();
     }
 
     function sonarNotificacion(cliente) {
-        if (Notification.permission === "granted") {
-            new Notification("¡NUEVO PEDIDO!", {
-                body: "El cliente " + cliente + " acaba de pedir.",
-                icon: "https://cdn-icons-png.flaticon.com/512/3502/3502214.png"
-            });
+        if (audioActivado) {
+            if (Notification.permission === "granted") {
+                new Notification("¡NUEVO PEDIDO!", { body: "El cliente " + cliente + " acaba de pedir." });
+            }
             const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
             audio.play();
         }
@@ -154,25 +161,25 @@
 
     function agregarAlCarrito(i) {
         const p = menuDinamico[i];
-        carrito.push({ nombre: p.nom, categoria: p.cat, precio: p.pre });
+        carrito.push({ nombre: p.nom, categoria: p.cat, precio: Number(p.pre) });
         document.getElementById('monto-carrito').innerText = carrito.reduce((a, b) => a + b.precio, 0);
     }
 
     function procesarPedido() {
         if(!carrito.length) return;
-        const nombreCli = document.getElementById('nombre-usuario').value;
         db.ref('pedidos/').push({
-            cliente: nombreCli,
+            cliente: document.getElementById('nombre-usuario').value,
             items: carrito,
-            total: parseInt(document.getElementById('monto-carrito').innerText),
-            listo: false, timestamp: Date.now()
+            total: Number(document.getElementById('monto-carrito').innerText),
+            listo: false, 
+            timestamp: Date.now()
         });
-        alert("¡Pedido enviado con éxito!");
+        alert("¡Pedido enviado!");
         location.reload();
     }
 
     function entrarCarlos() {
-        if(prompt("Contraseña Admin:") === "antojitos2026") {
+        if(prompt("Contraseña:") === "antojitos2026") {
             irSeccion('p-carlos');
             escucharPedidos();
             renderEditorCarlos();
@@ -188,7 +195,7 @@
         let html = "";
         menuDinamico.forEach((p, i) => {
             html += `<div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #333">
-                <b style="color:var(--oro)">${p.nom}</b><br>
+                <b>${p.nom}</b><br>
                 Precio: <input type="number" value="${p.pre}" onchange="actualizarItem(${i}, 'pre', this.value)" style="width:100px">
                 Ingredientes: <textarea onchange="actualizarItem(${i}, 'desc', this.value)">${p.desc}</textarea>
             </div>`;
@@ -197,14 +204,14 @@
     }
 
     function actualizarItem(index, campo, valor) {
-        if(campo === 'pre') menuDinamico[index].pre = parseInt(valor);
+        if(campo === 'pre') menuDinamico[index].pre = Number(valor);
         else menuDinamico[index].desc = valor;
         db.ref('config/menu').set(menuDinamico);
     }
 
     function actualizarPromo() {
         db.ref('config/promo').set(document.getElementById('input-promo').value);
-        alert("Promoción actualizada en el menú");
+        alert("Promo actualizada");
     }
 
     let primerCarga = true;
@@ -213,23 +220,30 @@
             const cont = document.getElementById('contenedor-pedidos-carlos');
             let totalDia = 0, html = "";
             
+            // Obtener fecha actual en formato YYYY-MM-DD
+            const hoy = new Date().toISOString().split('T')[0];
+
             snap.forEach(h => {
                 const p = h.val();
-                if(p.listo) totalDia += p.total;
-                else {
-                    let itemsHtml = p.items.map(i => `• [${i.categoria}] ${i.nombre}`).join('<br>');
+                const fechaPedido = new Date(p.timestamp).toISOString().split('T')[0];
+
+                // SOLO SUMAR SI ES DE HOY Y ESTÁ LISTO
+                if(p.listo && fechaPedido === hoy) {
+                    totalDia += Number(p.total); 
+                }
+                
+                if(!p.listo) {
+                    let itemsHtml = p.items.map(i => `• ${i.nombre}`).join('<br>');
                     html += `<div class="ticket-carlos">
-                        <b>CLIENTE: ${p.cliente.toUpperCase()}</b><br>${itemsHtml}<br>
-                        <b>TOTAL A COBRAR: $${p.total}</b>
-                        <button onclick="db.ref('pedidos/${h.key}').update({listo:true})" style="background:var(--verde); margin-top:5px">MARCAR ENTREGADO</button>
+                        <b>${p.cliente.toUpperCase()}</b><br>${itemsHtml}<br>
+                        <b>COBRAR: $${p.total}</b>
+                        <button onclick="db.ref('pedidos/${h.key}').update({listo:true})" style="background:var(--verde); margin-top:5px">ENTREGADO</button>
                     </div>`;
-                    
-                    // Solo sonar si es un pedido nuevo después de cargar la página
                     if(!primerCarga) sonarNotificacion(p.cliente);
                 }
             });
-            cont.innerHTML = html || "<p style='color:#555; text-align:center'>No hay pedidos nuevos</p>";
-            document.getElementById('suma-dinero').innerText = totalDia;
+            cont.innerHTML = html || "<p style='text-align:center; color:#555'>No hay pedidos</p>";
+            document.getElementById('suma-dinero').innerText = totalDia.toLocaleString();
             primerCarga = false;
         });
     }

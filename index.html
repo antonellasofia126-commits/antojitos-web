@@ -3,18 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos -v2 Sistema Maestro UPTAIT</title>
+    <title>Antojitos Maestro - UPTAIT</title>
     <meta name="google-site-verification" content="VSZPXOEtAUgP3MLla9kXNxPd7Ga2EcecufhXqHel_ls" />
-    <meta name="description" content="Sistema de pedidos de Antojitos - Comida rápida en la zona.">
-    <meta name="keywords" content="Antojitos, pedidos, comida rapida, UPTAIT, Carlos, hamburguesas">
-    <meta name="author" content="JACKSON GAMEZ">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Antojitos">
-
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/706/706164.png">
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/706/706164.png">
+    
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
     <style>
@@ -25,232 +16,222 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .container { max-width: 500px; margin: auto; background: #050505; min-height: 100vh; border-left: 1px solid #222; border-right: 1px solid #222; position: relative; }
         h1 { text-align: center; text-transform: uppercase; letter-spacing: 3px; margin-top: 40px; font-size: 2em; }
-        input, button, textarea { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid var(--oro); font-weight: bold; box-sizing: border-box; font-size: 16px; }
-        textarea { background: #111; color: white; height: 60px; resize: none; font-weight: normal; border-color: #333; }
+        input, button, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--oro); font-weight: bold; box-sizing: border-box; }
+        textarea { background: #111; color: white; height: 60px; resize: none; border-color: #333; font-weight: normal; }
         button { background: var(--oro); color: #000; cursor: pointer; border: none; transition: 0.2s; }
-        .cat-titulo { background: var(--oro); color: #000; padding: 10px; border-radius: 6px; margin: 30px 0 15px; text-align: center; font-weight: 900; letter-spacing: 1px; }
-        .producto-card { background: var(--gris); padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; }
-        .prod-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .prod-nombre { color: var(--blanco); font-size: 1.1em; }
-        .prod-precio { color: var(--verde); font-size: 1.1em; }
-        .prod-desc { color: #777; font-size: 0.85em; margin-bottom: 12px; line-height: 1.4; }
-        .footer-carrito { position: sticky; bottom: 0; background: #000; padding: 20px; border-top: 3px solid var(--oro); text-align: center; z-index: 100; }
-        .status-box { background: #0a0a0a; border: 2px solid var(--verde); padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; }
-        .ticket-carlos { background: var(--blanco); color: #000; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 10px solid var(--verde); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .ticket-cancelado { border-left-color: var(--rojo) !important; opacity: 0.8; background: #ffebeb; }
-        .nota-especial { background: #fff0f0; border: 1px dashed var(--rojo); color: var(--rojo); padding: 8px; border-radius: 6px; margin-top: 10px; font-size: 0.9em; font-weight: bold; }
-        .hora-ticket { font-size: 0.7em; color: #666; float: right; }
-        #btn-audio-carlos { background: var(--verde); color: white; margin-bottom: 20px; display: block; }
+        .cat-titulo { background: var(--oro); color: #000; padding: 8px; border-radius: 6px; margin: 25px 0 10px; text-align: center; font-weight: 900; }
+        .producto-card { background: var(--gris); padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #222; }
+        .ingredientes-texto { color: #888; font-size: 0.85em; margin: 5px 0 10px 0; display: block; font-style: italic; }
+        .caja-total { background: #0a0a0a; border: 2px solid var(--verde); color: var(--verde); padding: 15px; border-radius: 12px; font-size: 1.3em; text-align: center; margin: 15px 0; }
+        .ticket-carlos { background: var(--blanco); color: #000; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 10px solid var(--verde); }
+        .footer-carrito { position: sticky; bottom: 0; background: #000; padding: 15px; border-top: 3px solid var(--oro); text-align: center; z-index: 100; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div id="p-inicio" class="seccion activa">
-        <h1 style="margin-top:100px">ANTOJITOS</h1>
-        <p style="text-align:center; color:#555">Sistema de Pedidos UPTAIT</p>
-        <button onclick="irSeccion('p-login')">INGRESAR COMO CLIENTE</button>
-        <button style="background:none; color:white; border:1px solid #333; margin-top:50px" onclick="entrarCarlos()">ACCESO ADMINISTRADOR</button>
+        <h1 style="margin-top:80px">ANTOJITOS</h1>
+        <button onclick="irSeccion('p-login')">MENU CLIENTE</button>
+        <button style="background:none; color:white; border:1px solid #333; margin-top:40px" onclick="entrarCarlos()">ADMINISTRACIÓN</button>
     </div>
 
     <div id="p-login" class="seccion">
         <h1>TU NOMBRE</h1>
-        <input type="text" id="nombre-usuario" placeholder="Ej: Juan Pérez">
-        <button onclick="abrirMenu()">VER MENÚ COMPLETO</button>
+        <input type="text" id="nombre-usuario" placeholder="Ej: Carlos Acosta">
+        <button onclick="abrirMenu()">VER LA CARTA</button>
     </div>
 
     <div id="p-menu" class="seccion">
-        <h2 id="saludo-header" style="color:white; text-align:center"></h2>
+        <div id="promo-dia" style="background:var(--oro); color:black; padding:10px; border-radius:10px; margin-bottom:15px; text-align:center; font-weight:bold; display:none"></div>
         <div id="lista-menu"></div>
-        <div id="area-seguimiento" style="display:none;" class="status-box">
-            <p id="texto-seguimiento" style="color:white; font-weight:bold"></p>
-            <button id="btn-cancelar-pedido" onclick="cancelarMiPedido()" style="background:var(--rojo); color:white; margin-top:15px">
-                CANCELAR PEDIDO (<span id="reloj-cuenta">60</span>s)
-            </button>
-        </div>
         <div class="footer-carrito" id="barra-pedido">
-            <div style="margin-bottom:10px">
-                <span style="color:#aaa">Items: <b id="contador-items" style="color:white">0</b></span> | 
-                <span style="color:var(--verde)">Total: <b>$<span id="monto-carrito">0</span></b></span>
-            </div>
-            <button onclick="procesarPedido()" style="background:var(--verde); color:white">ENVIAR PEDIDO</button>
+            <span style="color:white">Total: <b>$<span id="monto-carrito">0</span></b></span>
+            <button onclick="procesarPedido()" style="background:var(--verde); color:white">PEDIR AHORA</button>
         </div>
     </div>
 
     <div id="p-carlos" class="seccion">
-        <button id="btn-audio-carlos" onclick="activarCanalAudio()">🔊 CLIC PARA ACTIVAR AVISOS DE VOZ</button>
-        <h1 style="color:var(--verde)">PEDIDOS EN COLA</h1>
+        <h2 style="color:var(--verde); text-align:center">PANEL DE CONTROL</h2>
+        <div class="caja-total">💰 VENTAS DEL DÍA: $<span id="suma-dinero">0</span></div>
+        
+        <button onclick="toggleEditor()" style="background:#222; color:var(--oro)">⚙️ EDITAR MENÚ E INGREDIENTES</button>
+        
+        <div id="editor-precios" style="display:none; margin-top:15px">
+            <div style="background:#111; padding:10px; border-radius:8px; margin-bottom:15px">
+                <label>PROMOCIÓN ACTIVA:</label>
+                <input type="text" id="input-promo" placeholder="Ej: Solo hoy 2x1 en Perros">
+                <button onclick="actualizarPromo()" style="background:var(--verde); color:white">GUARDAR PROMO</button>
+            </div>
+            <div id="lista-editor"></div>
+        </div>
+
+        <h3 style="margin-top:25px">PEDIDOS POR ENTREGAR:</h3>
         <div id="contenedor-pedidos-carlos"></div>
-        <button onclick="location.reload()" style="background:#222; color:white; margin-top:30px">CERRAR SESIÓN</button>
+        <button onclick="location.reload()" style="background:none; color:#444">SALIR</button>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { 
-        apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY", 
-        databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com", 
-        projectId: "antojitosweb" 
-    };
+    const firebaseConfig = { apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY", databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com", projectId: "antojitosweb" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // TU MENÚ ORIGINAL INTACTO
-    const menuCompleto = [
-        {cat:'POLLO A LA BROASTER', nom:'1 Pieza', pre:8000, desc:'Con ensalada y papa francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'2 Piezas', pre:12000, desc:'Con ensalada y papa francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'3 Piezas', pre:16000, desc:'Con ensalada y papa francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'4 Piezas', pre:21000, desc:'Con ensalada y papa francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'8 Piezas', pre:40000, desc:'Con ensalada y papa francesa'},
-        {cat:'SALCHIPAPAS', nom:'Personal "Ta bien"', pre:8000, desc:'Papas, salchicha, vegetales y queso'},
-        {cat:'SALCHIPAPAS', nom:'Mediana "Gustico"', pre:13000, desc:'Mixta con tocineta'},
-        {cat:'SALCHIPAPAS', nom:'Súper "Antojitos"', pre:19000, desc:'Doble proteína y tocineta'},
-        {cat:'HAMBURGUESAS MINI', nom:'Mini (Croqueta)', pre:6000, desc:'Croqueta de carne, vegetales y queso'},
-        {cat:'HAMBURGUESAS MINI', nom:'Mini (Pollo)', pre:7000, desc:'Pollo desmechado, vegetales y queso'},
-        {cat:'HAMBURGUESAS MINI', nom:'Mini (Mechada)', pre:8000, desc:'Carne mechada, vegetales y queso'},
-        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Antojitos"', pre:9000, desc:'Mechada, huevo, tocineta y jamón'},
-        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Momo"', pre:13000, desc:'2 carnes, aguacate, huevo, tocineta'},
-        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Trifásica"', pre:19000, desc:'Pollo, chuleta, carne y aguacate'},
-        {cat:'PERROS', nom:'Perro Hambruno', pre:5000, desc:'Sencillo'},
-        {cat:'PERROS', nom:'Perro Especial', pre:9000, desc:'Con mechada o pollo'},
-        {cat:'PERROS', nom:'Perro Americano', pre:13000, desc:'Dos proteínas, tocino y jamón'}
+    // MENÚ COMPLETO BASADO EN LAS IMÁGENES PROPORCIONADAS
+    let menuDinamico = [
+        {cat:'POLLO A LA BROASTER', nom:'1 pieza de pollo', pre:8000, desc:'ensalada, papa a la francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'2 piezas de pollo', pre:12000, desc:'ensalada, papa a la francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'3 piezas de pollo', pre:16000, desc:'ensalada, papa a la francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'4 piezas de pollo', pre:21000, desc:'ensalada, papa a la francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'8 piezas de pollo', pre:40000, desc:'ensalada, papa a la francesa'},
+        {cat:'SALCHIPAPA', nom:"Salchipapa personal: 'Ta' bien'", pre:8000, desc:'Papas a la francesa, salchicha, vegetales, queso'},
+        {cat:'SALCHIPAPA', nom:"Salchipapa mediana: 'Gustico'", pre:13000, desc:'Papas a la francesa, salchicha, vegetales, queso, tocineta, una porción mixta de carne y pollo'},
+        {cat:'SALCHIPAPA', nom:"Salchipapa 'Súper antojitos'", pre:19000, desc:'Papas a la francesa, salchicha, vegetales, queso, dos porciones de proteína, tocineta'},
+        {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Carne)', pre:6000, desc:'Pan, croqueta de carne, vegetales, papita, queso, salsa'},
+        {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Pollo)', pre:7000, desc:'Pan, pollo, vegetales, papita, queso, salsa'},
+        {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Mechada)', pre:8000, desc:'Pan, carne mechada, vegetales, papita, queso, salsa'},
+        {cat:'HAMBURGUESAS', nom:"Hamburguesas 'Antojitos'", pre:9000, desc:'Pan, carne mechada, vegetales, papita, salsa, huevo, tocineta, jamón'},
+        {cat:'HAMBURGUESAS', nom:"Hamburguesa 'Momo'", pre:13000, desc:'Pan, dos porciones de carne o pollo, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamón'},
+        {cat:'HAMBURGUESAS', nom:"Hamburguesa 'Trifásica'", pre:19000, desc:'Pan, pollo, chuleta, carne, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamón, salsas al gusto'},
+        {cat:'PERROS', nom:'Perro hambruno', pre:5000, desc:'Pan, salchicha, papitas, queso, salsas, vegetales'},
+        {cat:'PERROS', nom:'Perro especial', pre:9000, desc:'Pan, salchicha, papitas, queso, salsas, carne desmechada o pollo desmechado, vegetales, jamón'},
+        {cat:'PERROS', nom:'Perro americano', pre:13000, desc:'Pan, salchicha, papitas, salsas, dos proteínas, tocino, jamón, vegetales'}
     ];
 
-    let carrito = [], miPedidoRef = null, audioListo = false;
+    let carrito = [];
 
-    // TUS FUNCIONES DE VOZ Y NAVEGACIÓN INTACTAS
-    function sistemaVoz(texto) {
-        if (!window.speechSynthesis) return;
-        window.speechSynthesis.cancel();
-        const enunciado = new SpeechSynthesisUtterance(texto);
-        enunciado.lang = 'es-ES';
-        enunciado.rate = 1;
-        window.speechSynthesis.speak(enunciado);
+    // NOTIFICACIONES EN SEGUNDO PLANO
+    if (Notification.permission !== "granted") {
+        Notification.requestPermission();
     }
 
-    function activarCanalAudio() {
-        audioListo = true;
-        document.getElementById('btn-audio-carlos').style.display = 'none';
-        sistemaVoz("Sistema de avisos activado.");
+    function sonarNotificacion(cliente) {
+        if (Notification.permission === "granted") {
+            new Notification("¡NUEVO PEDIDO!", {
+                body: "El cliente " + cliente + " acaba de pedir.",
+                icon: "https://cdn-icons-png.flaticon.com/512/3502/3502214.png"
+            });
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play();
+        }
     }
 
     function irSeccion(id) {
         document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
         document.getElementById(id).classList.add('activa');
-        window.scrollTo(0,0);
     }
 
     function abrirMenu() {
-        const user = document.getElementById('nombre-usuario').value.trim();
-        if(!user) return alert("Escribe tu nombre");
-        document.getElementById('saludo-header').innerText = "HOLA, " + user.toUpperCase();
+        if(!document.getElementById('nombre-usuario').value) return alert("Escribe tu nombre");
         irSeccion('p-menu');
+        db.ref('config/menu').on('value', s => {
+            if(s.val()) menuDinamico = s.val();
+            renderMenuCliente();
+        });
+        db.ref('config/promo').on('value', s => {
+            const p = s.val();
+            const div = document.getElementById('promo-dia');
+            if(p) { div.innerText = "⭐ PROMO: " + p; div.style.display = "block"; }
+            else { div.style.display = "none"; }
+        });
+    }
+
+    function renderMenuCliente() {
         let html = "", catActual = "";
-        menuCompleto.forEach((p, index) => {
+        menuDinamico.forEach((p, i) => {
             if(p.cat !== catActual) { catActual = p.cat; html += `<div class="cat-titulo">${catActual}</div>`; }
             html += `<div class="producto-card">
-                        <div class="prod-info"><span class="prod-nombre">${p.nom}</span><span class="prod-precio">$${p.pre}</span></div>
-                        <p class="prod-desc">${p.desc}</p>
-                        <textarea id="nota-${index}" placeholder="Ej: sin cebolla..."></textarea>
-                        <button onclick="agregarAlCarrito(${index})">AGREGAR AL PEDIDO</button>
-                    </div>`;
+                <div style="display:flex; justify-content:space-between">
+                    <b>${p.nom}</b>
+                    <b style="color:var(--verde)">$${p.pre}</b>
+                </div>
+                <span class="ingredientes-texto">${p.desc}</span>
+                <button onclick="agregarAlCarrito(${i})" style="padding:5px">AGREGAR</button>
+            </div>`;
         });
         document.getElementById('lista-menu').innerHTML = html;
     }
 
-    function agregarAlCarrito(idx) {
-        const p = menuCompleto[idx];
-        const obs = document.getElementById(`nota-${idx}`).value;
-        carrito.push({ nombre: p.nom, precio: p.pre, nota: obs });
-        document.getElementById('contador-items').innerText = carrito.length;
-        document.getElementById('monto-carrito').innerText = carrito.reduce((acc, item) => acc + item.precio, 0).toLocaleString();
-        document.getElementById(`nota-${idx}`).value = "";
+    function agregarAlCarrito(i) {
+        const p = menuDinamico[i];
+        carrito.push({ nombre: p.nom, categoria: p.cat, precio: p.pre });
+        document.getElementById('monto-carrito').innerText = carrito.reduce((a, b) => a + b.precio, 0);
     }
 
     function procesarPedido() {
         if(!carrito.length) return;
-        const ref = db.ref('pedidos/').push({
-            cliente: document.getElementById('nombre-usuario').value,
+        const nombreCli = document.getElementById('nombre-usuario').value;
+        db.ref('pedidos/').push({
+            cliente: nombreCli,
             items: carrito,
-            total: document.getElementById('monto-carrito').innerText,
-            listo: false, cancelado: false, timestamp: Date.now()
+            total: parseInt(document.getElementById('monto-carrito').innerText),
+            listo: false, timestamp: Date.now()
         });
-        miPedidoRef = ref.key;
-        document.getElementById('barra-pedido').style.display = 'none';
-        document.getElementById('area-seguimiento').style.display = 'block';
-        document.getElementById('texto-seguimiento').innerText = "Enviado a Carlos.";
-        
-        // AGREGADO: Lógica del cronómetro visual
-        let segundos = 60;
-        const intervalo = setInterval(() => {
-            segundos--;
-            const rel = document.getElementById('reloj-cuenta');
-            if(rel) rel.innerText = segundos;
-            if(segundos <= 0) {
-                clearInterval(intervalo);
-                const btn = document.getElementById('btn-cancelar-pedido');
-                if(btn) btn.style.display = 'none';
-            }
-        }, 1000);
-
-        db.ref('pedidos/' + miPedidoRef).on('value', snap => {
-            const p = snap.val();
-            if(p?.listo) {
-                clearInterval(intervalo);
-                sistemaVoz("¡Tu pedido está listo!");
-                document.getElementById('texto-seguimiento').innerHTML = "<span style='color:var(--verde)'>¡PEDIDO LISTO!</span>";
-                document.getElementById('btn-cancelar-pedido').style.display = 'none';
-            }
-            if(p?.cancelado) {
-                clearInterval(intervalo);
-                document.getElementById('texto-seguimiento').innerHTML = "<span style='color:var(--rojo)'>PEDIDO CANCELADO</span>";
-                document.getElementById('btn-cancelar-pedido').style.display = 'none';
-            }
-        });
-    }
-
-    function cancelarMiPedido() {
-        if(miPedidoRef && confirm("¿Seguro que quieres cancelar tu pedido?")) {
-            db.ref('pedidos/' + miPedidoRef).update({ cancelado: true });
-        }
+        alert("¡Pedido enviado con éxito!");
+        location.reload();
     }
 
     function entrarCarlos() {
-        const pass = prompt("Clave:");
-        if(pass === "antojitos2026") {
+        if(prompt("Contraseña Admin:") === "antojitos2026") {
             irSeccion('p-carlos');
-            let historialLocal = -1;
-            db.ref('pedidos/').on('value', snap => {
-                const contenedor = document.getElementById('contenedor-pedidos-carlos');
-                let cuentaActual = 0;
-                contenedor.innerHTML = "";
-                snap.forEach(hijo => {
-                    const p = hijo.val();
-                    
-                    // Solo mostramos si no está listo y no está cancelado (LA MEJORA)
-                    if(!p.listo && !p.cancelado) {
-                        cuentaActual++;
-                        let listH = p.items.map(i => `• ${i.nombre} ${i.nota ? `<div class="nota-especial">OJO: ${i.nota}</div>` : ''}`).join('<br>');
-                        contenedor.innerHTML += `
-                            <div class="ticket-carlos">
-                                <span class="hora-ticket">${new Date(p.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-                                <b>CLIENTE: ${p.cliente.toUpperCase()}</b><br><hr>
-                                ${listH}<br><hr>
-                                <b>TOTAL: $${p.total}</b><br>
-                                <button onclick="db.ref('pedidos/${hijo.key}').update({listo:true})" style="background:var(--verde); color:white; margin-top:10px">ENTREGAR</button>
-                            </div>`;
-                    }
-
-                    if(p.cancelado && !p.vistoCan) { 
-                        if(audioListo) sistemaVoz("Carlos, un pedido fue cancelado.");
-                        db.ref('pedidos/' + hijo.key).update({ vistoCan: true });
-                    }
-                });
-                if(historialLocal !== -1 && cuentaActual > historialLocal) {
-                    if(audioListo) sistemaVoz("¡Atención Carlos! Tienes un nuevo pedido.");
-                }
-                historialLocal = cuentaActual; 
-            });
+            escucharPedidos();
+            renderEditorCarlos();
         }
+    }
+
+    function toggleEditor() {
+        const d = document.getElementById('editor-precios');
+        d.style.display = d.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function renderEditorCarlos() {
+        let html = "";
+        menuDinamico.forEach((p, i) => {
+            html += `<div style="background:#1a1a1a; padding:10px; border-radius:10px; margin-bottom:10px; border:1px solid #333">
+                <b style="color:var(--oro)">${p.nom}</b><br>
+                Precio: <input type="number" value="${p.pre}" onchange="actualizarItem(${i}, 'pre', this.value)" style="width:100px">
+                Ingredientes: <textarea onchange="actualizarItem(${i}, 'desc', this.value)">${p.desc}</textarea>
+            </div>`;
+        });
+        document.getElementById('lista-editor').innerHTML = html;
+    }
+
+    function actualizarItem(index, campo, valor) {
+        if(campo === 'pre') menuDinamico[index].pre = parseInt(valor);
+        else menuDinamico[index].desc = valor;
+        db.ref('config/menu').set(menuDinamico);
+    }
+
+    function actualizarPromo() {
+        db.ref('config/promo').set(document.getElementById('input-promo').value);
+        alert("Promoción actualizada en el menú");
+    }
+
+    let primerCarga = true;
+    function escucharPedidos() {
+        db.ref('pedidos/').on('value', snap => {
+            const cont = document.getElementById('contenedor-pedidos-carlos');
+            let totalDia = 0, html = "";
+            
+            snap.forEach(h => {
+                const p = h.val();
+                if(p.listo) totalDia += p.total;
+                else {
+                    let itemsHtml = p.items.map(i => `• [${i.categoria}] ${i.nombre}`).join('<br>');
+                    html += `<div class="ticket-carlos">
+                        <b>CLIENTE: ${p.cliente.toUpperCase()}</b><br>${itemsHtml}<br>
+                        <b>TOTAL A COBRAR: $${p.total}</b>
+                        <button onclick="db.ref('pedidos/${h.key}').update({listo:true})" style="background:var(--verde); margin-top:5px">MARCAR ENTREGADO</button>
+                    </div>`;
+                    
+                    // Solo sonar si es un pedido nuevo después de cargar la página
+                    if(!primerCarga) sonarNotificacion(p.cliente);
+                }
+            });
+            cont.innerHTML = html || "<p style='color:#555; text-align:center'>No hay pedidos nuevos</p>";
+            document.getElementById('suma-dinero').innerText = totalDia;
+            primerCarga = false;
+        });
     }
 </script>
 </body>

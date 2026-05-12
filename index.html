@@ -206,24 +206,28 @@
                 contenedor.innerHTML = "";
                 snap.forEach(hijo => {
                     const p = hijo.val();
-                    if(!p.listo) {
+                    
+                    // CIRUGÍA AQUÍ: Solo entra si NO está listo y NO está cancelado
+                    if(!p.listo && !p.cancelado) {
                         cuentaActual++;
                         let listH = p.items.map(i => `• ${i.nombre} ${i.nota ? `<div class="nota-especial">OJO: ${i.nota}</div>` : ''}`).join('<br>');
                         contenedor.innerHTML += `
-                            <div class="ticket-carlos ${p.cancelado ? 'ticket-cancelado' : ''}">
+                            <div class="ticket-carlos">
                                 <span class="hora-ticket">${new Date(p.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
                                 <b>CLIENTE: ${p.cliente.toUpperCase()}</b><br><hr>
                                 ${listH}<br><hr>
                                 <b>TOTAL: $${p.total}</b><br>
-                                ${!p.cancelado ? `<button onclick="db.ref('pedidos/${hijo.key}').update({listo:true})" style="background:var(--verde); color:white; margin-top:10px">ENTREGAR</button>` : '<b style="color:red">CANCELADO POR EL CLIENTE</b>'}
+                                <button onclick="db.ref('pedidos/${hijo.key}').update({listo:true})" style="background:var(--verde); color:white; margin-top:10px">ENTREGAR</button>
                             </div>`;
-                        
-                        if(p.cancelado && !p.vistoCan) { 
-                            if(audioListo) sistemaVoz("Carlos, un pedido fue cancelado.");
-                            db.ref('pedidos/' + hijo.key).update({ vistoCan: true });
-                        }
+                    }
+                    
+                    // Lógica de voz para cancelación (se ejecuta fuera para que Carlos se entere)
+                    if(p.cancelado && !p.vistoCan) { 
+                        if(audioListo) sistemaVoz("Carlos, un pedido fue cancelado.");
+                        db.ref('pedidos/' + hijo.key).update({ vistoCan: true });
                     }
                 });
+                
                 if(historialLocal !== -1 && cuentaActual > historialLocal) {
                     if(audioListo) sistemaVoz("¡Atención Carlos! Tienes un nuevo pedido.");
                 }

@@ -12,13 +12,11 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Antojitos">
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/706/706164.png">
+
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/706/706164.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/706/706164.png">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-
     <style>
         :root { --oro: #d4af37; --negro: #000; --gris: #121212; --verde: #2ecc71; --rojo: #e74c3c; --blanco: #ffffff; }
         body { background: var(--negro); color: var(--oro); font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 0; }
@@ -40,16 +38,18 @@
         .status-box { background: #0a0a0a; border: 2px solid var(--verde); padding: 20px; border-radius: 15px; margin-top: 20px; text-align: center; }
         .ticket-carlos { background: var(--blanco); color: #000; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 10px solid var(--verde); box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
         .nota-especial { background: #fff0f0; border: 1px dashed var(--rojo); color: var(--rojo); padding: 8px; border-radius: 6px; margin-top: 10px; font-size: 0.9em; font-weight: bold; }
+        .hora-ticket { font-size: 0.7em; color: #666; float: right; }
         
-        /* ELEMENTOS NUEVOS CARLOS */
-        .caja-hoy { background: #111; border: 2px solid var(--verde); padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
-        .caja-hoy span { font-size: 1.8em; color: var(--verde); font-weight: 900; }
-        .editor-box { background: #111; border: 1px solid #333; padding: 15px; border-radius: 15px; display: none; margin-bottom: 20px; }
+        /* ESTILOS NUEVOS CARLOS */
+        .caja-ventas { background: #111; border: 2px solid var(--verde); padding: 15px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .caja-ventas span { font-size: 1.8em; color: var(--verde); font-weight: 900; }
+        .editor-menu { background: #1a1a1a; padding: 15px; border-radius: 15px; border: 1px solid #333; margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <!-- INICIO -->
     <div id="p-inicio" class="seccion activa">
         <h1 style="margin-top:100px">ANTOJITOS</h1>
         <p style="text-align:center; color:#555">Sistema Maestro UPTAIT</p>
@@ -57,18 +57,20 @@
         <button style="background:none; color:white; border:1px solid #333; margin-top:50px" onclick="entrarCarlos()">ACCESO ADMINISTRADOR</button>
     </div>
 
+    <!-- LOGIN CLIENTE -->
     <div id="p-login" class="seccion">
         <h1>TU NOMBRE</h1>
         <input type="text" id="nombre-usuario" placeholder="Ej: Jackson Gamez">
         <button onclick="abrirMenu()">VER MENÚ COMPLETO</button>
     </div>
 
+    <!-- MENÚ CLIENTE -->
     <div id="p-menu" class="seccion">
         <h2 id="saludo-header" style="color:white; text-align:center"></h2>
         <div id="lista-menu"></div>
         <div id="area-seguimiento" style="display:none;" class="status-box">
             <p id="texto-seguimiento" style="color:white; font-weight:bold"></p>
-            <button id="btn-cancelar-pedido" onclick="cancelarMiPedido()" style="background:var(--rojo); color:white; margin-top:15px">CANCELAR</button>
+            <button id="btn-cancelar-pedido" onclick="cancelarMiPedido()" style="background:var(--rojo); color:white; margin-top:15px">CANCELAR PEDIDO (<span id="reloj-cuenta">60</span>s)</button>
         </div>
         <div class="footer-carrito" id="barra-pedido">
             <span style="color:#aaa">Total: <b style="color:var(--verde)">$<span id="monto-carrito">0</span></b></span>
@@ -76,19 +78,21 @@
         </div>
     </div>
 
+    <!-- PANEL CARLOS -->
     <div id="p-carlos" class="seccion">
-        <div class="caja-hoy">VENTAS DE HOY: <br><span id="total-ventas-hoy">$0</span></div>
+        <div class="caja-ventas">VENTAS DE HOY: <br><span id="total-ventas-hoy">$0</span></div>
         
-        <button onclick="toggleEditor()" style="background:#222; color:var(--oro); border:1px solid var(--oro)">⚙️ EDITAR MENÚ E INGREDIENTES</button>
-        <div id="editor-admin" class="editor-box">
-            <h3 style="text-align:center">Editor Maestro</h3>
-            <div id="items-editor"></div>
+        <button onclick="toggleEditor()" style="background:#222; color:var(--oro); border:1px solid var(--oro)">⚙️ EDITAR PRECIOS / PROMOS</button>
+        
+        <div id="editor-seccion" class="editor-menu">
+            <h3 style="text-align:center; margin-top:0">Editor Maestro</h3>
+            <div id="lista-editor"></div>
         </div>
 
-        <button id="btn-audio-carlos" onclick="activarCanalAudio()">🔊 ACTIVAR AVISOS</button>
-        <h2 style="color:var(--verde)">PEDIDOS PENDIENTES</h2>
+        <button id="btn-audio-carlos" onclick="activarCanalAudio()" style="background:var(--verde); color:white; margin-top:20px">🔊 ACTIVAR AVISOS DE VOZ</button>
+        <h2 style="color:var(--verde); text-align:center">PEDIDOS PENDIENTES</h2>
         <div id="contenedor-pedidos-carlos"></div>
-        <button onclick="location.reload()" style="background:#222; color:white; margin-top:30px">SALIR</button>
+        <button onclick="location.reload()" style="background:#222; color:white; margin-top:30px">CERRAR SESIÓN</button>
     </div>
 </div>
 
@@ -101,31 +105,34 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // DATOS CARGADOS DESDE LAS FOTOS DEL CATÁLOGO
+    // DATOS DINÁMICOS (Se sincronizan con Firebase para que Carlos cambie precios)
     let menuData = [
-        {cat:'POLLO A LA BROASTER', nom:'1 Pieza', pre:8000, desc:'Pollo, ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'2 Piezas', pre:12000, desc:'Pollo, ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'3 Piezas', pre:16000, desc:'Pollo, ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'4 Piezas', pre:21000, desc:'Pollo, ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'8 Piezas', pre:40000, desc:'Pollo, ensalada, papa a la francesa'},
-        {cat:'SALCHIPAPA', nom:'Personal "Ta bien"', pre:8000, desc:'Papas, salchicha, vegetales, queso'},
-        {cat:'SALCHIPAPA', nom:'Mediana "Gustico"', pre:13000, desc:'Papas, salchicha, vegetales, queso, tocineta, carne o pollo'},
-        {cat:'SALCHIPAPA', nom:'Súper "Antojitos"', pre:19000, desc:'Papas, salchicha, vegetales, queso, dos proteínas, tocineta'},
-        {cat:'HAMBURGUESAS MINI', nom:'Mini (Croqueta)', pre:6000, desc:'Pan, croqueta de carne, vegetales, papita, queso, salsa'},
-        {cat:'HAMBURGUESAS MINI', nom:'Mini (Pollo)', pre:7000, desc:'Pan, pollo, vegetales, papita, queso, salsa'},
-        {cat:'HAMBURGUESAS MINI', nom:'Mini (Mechada)', pre:8000, desc:'Pan, carne mechada, vegetales, papita, queso, salsa'},
-        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Antojitos"', pre:9000, desc:'Pan, carne mechada, vegetales, papita, salsa, huevo, tocineta, jamón'},
-        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Momo"', pre:13000, desc:'Pan, 2 carnes o pollo, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamón'},
-        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Trifásica"', pre:19000, desc:'Pan, pollo, chuleta, carne, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamón, salsas'},
-        {cat:'PERROS', nom:'Perro Hambruno', pre:5000, desc:'Pan, salchicha, papitas, queso, salsas, vegetales'},
-        {cat:'PERROS', nom:'Perro Especial', pre:9000, desc:'Pan, salchicha, papitas, queso, salsas, carne desmechada o pollo, vegetales, jamón'},
-        {cat:'PERROS', nom:'Perro Americano', pre:13000, desc:'Pan, salchicha, papitas, salsas, dos proteínas, tocino, jamón, vegetales'}
+        {cat:'POLLO A LA BROASTER', nom:'1 Pieza', pre:8000, desc:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'2 Piezas', pre:12000, desc:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'3 Piezas', pre:16000, desc:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'4 Piezas', pre:21000, desc:'Con ensalada y papa francesa'},
+        {cat:'POLLO A LA BROASTER', nom:'8 Piezas', pre:40000, desc:'Con ensalada y papa francesa'},
+        {cat:'SALCHIPAPAS', nom:'Personal "Ta bien"', pre:8000, desc:'Papas, salchicha, vegetales y queso'},
+        {cat:'SALCHIPAPAS', nom:'Mediana "Gustico"', pre:13000, desc:'Mixta con tocineta'},
+        {cat:'SALCHIPAPAS', nom:'Súper "Antojitos"', pre:19000, desc:'Doble proteína y tocineta'},
+        {cat:'HAMBURGUESAS MINI', nom:'Mini (Croqueta)', pre:6000, desc:'Croqueta de carne, vegetales y queso'},
+        {cat:'HAMBURGUESAS MINI', nom:'Mini (Pollo)', pre:7000, desc:'Pollo desmechado, vegetales y queso'},
+        {cat:'HAMBURGUESAS MINI', nom:'Mini (Mechada)', pre:8000, desc:'Carne mechada, vegetales y queso'},
+        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Antojitos"', pre:9000, desc:'Mechada, huevo, tocineta y jamón'},
+        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Momo"', pre:13000, desc:'2 carnes, aguacate, huevo, tocineta'},
+        {cat:'HAMBURGUESAS ESPECIALES', nom:'Hamburguesa "Trifásica"', pre:19000, desc:'Pollo, chuleta, carne y aguacate'},
+        {cat:'PERROS', nom:'Perro Hambruno', pre:5000, desc:'Sencillo'},
+        {cat:'PERROS', nom:'Perro Especial', pre:9000, desc:'Con mechada o pollo'},
+        {cat:'PERROS', nom:'Perro Americano', pre:13000, desc:'Dos proteínas, tocino y jamón'}
     ];
 
     let carrito = [], miPedidoRef = null, audioListo = false;
 
-    // Sincronizar menú vivo con Firebase
-    db.ref('config/menu').on('value', snap => { if(snap.exists()) menuData = snap.val(); });
+    // Sincronización automática del menú desde la nube
+    db.ref('config/menu').on('value', snap => {
+        if(snap.exists()) menuData = snap.val();
+        if(document.getElementById('p-menu').classList.contains('activa')) renderMenuCliente();
+    });
 
     function sistemaVoz(t) { if(audioListo && window.speechSynthesis) { window.speechSynthesis.cancel(); const e = new SpeechSynthesisUtterance(t); e.lang='es-ES'; window.speechSynthesis.speak(e); } }
     
@@ -133,7 +140,7 @@
 
     function abrirMenu() {
         const u = document.getElementById('nombre-usuario').value;
-        if(!u) return alert("Nombre por favor");
+        if(!u) return alert("Por favor escribe tu nombre");
         document.getElementById('saludo-header').innerText = "HOLA, " + u.toUpperCase();
         irSeccion('p-menu');
         renderMenuCliente();
@@ -146,7 +153,7 @@
             html += `<div class="producto-card">
                 <div class="prod-info"><b>${p.nom}</b><b style="color:var(--verde)">$${p.pre}</b></div>
                 <p class="prod-desc">${p.desc}</p>
-                <textarea id="n-${i}" placeholder="Notas..."></textarea>
+                <textarea id="n-${i}" placeholder="Notas especiales..."></textarea>
                 <button onclick="agregar(${i})">AGREGAR</button>
             </div>`;
         });
@@ -166,43 +173,53 @@
             cliente: document.getElementById('nombre-usuario').value,
             items: carrito,
             total: carrito.reduce((a, b) => a + b.precio, 0),
-            listo: false, timestamp: Date.now()
+            listo: false, cancelado: false, timestamp: Date.now()
         });
         miPedidoRef = ref.key;
-        irSeccion('p-menu');
         document.getElementById('barra-pedido').style.display = 'none';
         document.getElementById('area-seguimiento').style.display = 'block';
         document.getElementById('texto-seguimiento').innerText = "Pedido enviado a Carlos...";
         
+        let segs = 60;
+        const intv = setInterval(() => {
+            segs--;
+            document.getElementById('reloj-cuenta').innerText = segs;
+            if(segs <= 0) { clearInterval(intv); document.getElementById('btn-cancelar-pedido').style.display='none'; }
+        }, 1000);
+
         db.ref('pedidos/' + miPedidoRef).on('value', snap => {
             if(snap.val()?.listo) {
-                sistemaVoz("¡Tu pedido está listo!");
+                sistemaVoz("¡Jackson, tu pedido está listo!");
                 document.getElementById('texto-seguimiento').innerHTML = "<b style='color:var(--verde)'>¡PEDIDO LISTO! RETIRA EN CAJA</b>";
+                document.getElementById('btn-cancelar-pedido').style.display = 'none';
+                clearInterval(intv);
             }
         });
     }
 
-    // --- SECCIÓN CARLOS ---
+    function cancelarMiPedido() { if(miPedidoRef && confirm("¿Cancelar?")) db.ref('pedidos/' + miPedidoRef).update({cancelado:true}); }
+
+    // --- LÓGICA EXCLUSIVA DE CARLOS ---
     function activarCanalAudio() { audioListo = true; document.getElementById('btn-audio-carlos').style.display='none'; sistemaVoz("Avisos activados"); }
 
     function toggleEditor() {
-        const box = document.getElementById('editor-admin');
+        const box = document.getElementById('editor-seccion');
         box.style.display = box.style.display === 'block' ? 'none' : 'block';
         if(box.style.display === 'block') {
             let h = "";
             menuData.forEach((p, i) => {
-                h += `<div style="border-bottom:1px solid #333; padding:10px 0">
-                    <small>${p.nom}</small><br>
-                    <input type="number" value="${p.pre}" onchange="editMenu(${i},'pre',this.value)" style="padding:5px; width:45%">
-                    <input type="text" value="${p.desc}" onchange="editMenu(${i},'desc',this.value)" style="padding:5px; width:50%">
+                h += `<div style="border-bottom:1px solid #333; padding:10px 0; font-size:12px">
+                    <b>${p.nom}</b><br>
+                    Precio: <input type="number" value="${p.pre}" onchange="updateMenu(${i},'pre',this.value)" style="padding:5px; width:80px">
+                    Desc: <input type="text" value="${p.desc}" onchange="updateMenu(${i},'desc',this.value)" style="padding:5px; width:150px">
                 </div>`;
             });
-            document.getElementById('items-editor').innerHTML = h;
+            document.getElementById('lista-editor').innerHTML = h;
         }
     }
 
-    function editMenu(i, campo, valor) {
-        menuData[i][campo] = campo === 'pre' ? Number(valor) : valor;
+    function updateMenu(i, campo, val) {
+        menuData[i][campo] = campo === 'pre' ? Number(val) : val;
         db.ref('config/menu').set(menuData);
     }
 
@@ -218,14 +235,15 @@
                     const p = h.val();
                     const fechaP = new Date(p.timestamp).toLocaleDateString();
                     
-                    // CAJA DE VENTAS
+                    // SUMAR A CAJA SOLO SI ES DE HOY Y ESTÁ ENTREGADO
                     if(p.listo && fechaP === hoy) ventasHoy += p.total;
 
-                    // TICKETS PENDIENTES
-                    if(!p.listo) {
+                    // MOSTRAR TICKETS PENDIENTES
+                    if(!p.listo && !p.cancelado) {
                         let itemsHtml = p.items.map(it => `• ${it.nombre} ${it.nota ? `<div class="nota-especial">${it.nota}</div>` : ''}`).join('<br>');
                         cont.innerHTML += `
                             <div class="ticket-carlos">
+                                <span class="hora-ticket">${new Date(p.timestamp).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
                                 <b>${p.cliente.toUpperCase()}</b><hr>
                                 ${itemsHtml}<br>
                                 <button onclick="db.ref('pedidos/${h.key}').update({listo:true})" style="background:var(--verde); color:white">ENTREGAR ($${p.total})</button>

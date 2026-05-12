@@ -64,7 +64,9 @@
         <div id="lista-menu"></div>
         <div id="area-seguimiento" style="display:none;" class="status-box">
             <p id="texto-seguimiento" style="color:white; font-weight:bold"></p>
-            <button id="btn-cancelar-pedido" onclick="cancelarMiPedido()" style="background:var(--rojo); color:white; margin-top:15px">CANCELAR PEDIDO</button>
+            <button id="btn-cancelar-pedido" onclick="cancelarMiPedido()" style="background:var(--rojo); color:white; margin-top:15px">
+                CANCELAR PEDIDO (<span id="reloj-cuenta">60</span>s)
+            </button>
         </div>
         <div class="footer-carrito" id="barra-pedido">
             <div style="margin-bottom:10px">
@@ -92,6 +94,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // TU MENÚ ORIGINAL INTACTO
     const menuCompleto = [
         {cat:'POLLO A LA BROASTER', nom:'1 Pieza', pre:8000, desc:'Con ensalada y papa francesa'},
         {cat:'POLLO A LA BROASTER', nom:'2 Piezas', pre:12000, desc:'Con ensalada y papa francesa'},
@@ -114,6 +117,7 @@
 
     let carrito = [], miPedidoRef = null, audioListo = false;
 
+    // TUS FUNCIONES DE VOZ Y NAVEGACIÓN INTACTAS
     function sistemaVoz(texto) {
         if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
@@ -175,24 +179,29 @@
         document.getElementById('area-seguimiento').style.display = 'block';
         document.getElementById('texto-seguimiento').innerText = "Enviado a Carlos.";
         
-        // --- AQUÍ ESTÁN LOS 60 SEGUNDOS ---
-        setTimeout(() => {
-            const btnCan = document.getElementById('btn-cancelar-pedido');
-            if(btnCan) {
-                btnCan.style.display = 'none';
-                console.log("Tiempo de cancelación agotado.");
+        // AGREGADO: Lógica del cronómetro visual
+        let segundos = 60;
+        const intervalo = setInterval(() => {
+            segundos--;
+            const rel = document.getElementById('reloj-cuenta');
+            if(rel) rel.innerText = segundos;
+            if(segundos <= 0) {
+                clearInterval(intervalo);
+                const btn = document.getElementById('btn-cancelar-pedido');
+                if(btn) btn.style.display = 'none';
             }
-        }, 60000); 
-        // ----------------------------------
+        }, 1000);
 
         db.ref('pedidos/' + miPedidoRef).on('value', snap => {
             const p = snap.val();
             if(p?.listo) {
+                clearInterval(intervalo);
                 sistemaVoz("¡Tu pedido está listo!");
                 document.getElementById('texto-seguimiento').innerHTML = "<span style='color:var(--verde)'>¡PEDIDO LISTO!</span>";
                 document.getElementById('btn-cancelar-pedido').style.display = 'none';
             }
             if(p?.cancelado) {
+                clearInterval(intervalo);
                 document.getElementById('texto-seguimiento').innerHTML = "<span style='color:var(--rojo)'>PEDIDO CANCELADO</span>";
                 document.getElementById('btn-cancelar-pedido').style.display = 'none';
             }
@@ -217,7 +226,7 @@
                 snap.forEach(hijo => {
                     const p = hijo.val();
                     
-                    // Solo mostramos si no está listo y no está cancelado
+                    // Solo mostramos si no está listo y no está cancelado (LA MEJORA)
                     if(!p.listo && !p.cancelado) {
                         cuentaActual++;
                         let listH = p.items.map(i => `• ${i.nombre} ${i.nota ? `<div class="nota-especial">OJO: ${i.nota}</div>` : ''}`).join('<br>');
@@ -236,7 +245,6 @@
                         db.ref('pedidos/' + hijo.key).update({ vistoCan: true });
                     }
                 });
-
                 if(historialLocal !== -1 && cuentaActual > historialLocal) {
                     if(audioListo) sistemaVoz("¡Atención Carlos! Tienes un nuevo pedido.");
                 }

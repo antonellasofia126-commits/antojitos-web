@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Antojitos - Sistema Maestro UPTAIT</title>
-    
-    <!-- METADATOS TÉCNICOS COMPLETOS -->
+    <title>Antojitos</title>
     <meta name="google-site-verification" content="VSZPXOEtAUgP3MLla9kXNxPd7Ga2EcecufhXqHel_ls" />
     <meta name="description" content="Sistema de pedidos de Antojitos - Comida rápida.">
     <meta name="keywords" content="Antojitos, pedidos, comida rapida, UPTAIT, Carlos, hamburguesas, pollo broaster">
@@ -37,21 +35,19 @@
 <body>
 
 <div class="container">
-    <!-- PANTALLA INICIAL -->
+
     <div id="p-inicio" class="seccion activa">
         <h1 style="text-align:center; margin-top:100px; letter-spacing:4px">ANTOJITOS</h1>
         <button onclick="irSeccion('p-login')">INGRESAR COMO CLIENTE</button>
         <button style="background:none; color:white; border:1px solid #333; margin-top:40px" onclick="entrarCarlos()">ADMINISTRACIÓN (CARLOS)</button>
     </div>
-
-    <!-- PANTALLA NOMBRE -->
+    
     <div id="p-login" class="seccion">
         <h1>TU NOMBRE</h1>
         <input type="text" id="nombre-usuario" placeholder="¿Quién pide?">
         <button onclick="iniciarCliente()">VER MENÚ COMPLETO</button>
     </div>
 
-    <!-- MENÚ CLIENTE -->
     <div id="p-menu" class="seccion">
         <h2 id="saludo-h" style="color:white; text-align:center"></h2>
         <div id="lista-menu"></div>
@@ -67,7 +63,6 @@
         </div>
     </div>
 
-    <!-- PANEL CARLOS -->
     <div id="p-carlos" class="seccion">
         <div style="background:#111; padding:20px; border-radius:15px; text-align:center; margin-bottom:20px; border:1px solid var(--verde)">
             <h3 style="margin:0; color:#888">VENTAS DE HOY</h3>
@@ -100,7 +95,6 @@
   measurementId: "G-HSV7MGM4FM"
 };
 
-// Inicialización
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
     
@@ -126,9 +120,6 @@ let catalogo = [
 
 let carrito = [], audioActivado = false, miPedidoID = null, timerCancel = null, conteoPedidosPrevio = -1;
 
-// --- FUNCIONES DE CARGA ---
-
-// Escuchar cambios en el menú en tiempo real
 db.ref('config/menu').on('value', (snap) => {
     if(snap.exists()) {
         catalogo = snap.val();
@@ -136,7 +127,7 @@ db.ref('config/menu').on('value', (snap) => {
             renderizarMenu();
         }
     } else {
-        // Si la DB está vacía, subimos el catálogo inicial
+       
         db.ref('config/menu').set(catalogo);
     }
 });
@@ -161,21 +152,36 @@ function iniciarCliente() {
     irSeccion('p-menu');
     renderizarMenu();
 }
-
 function renderizarMenu() {
     let html = "", catActual = "";
+    
     catalogo.forEach((p, i) => {
-        if(p.cat !== catActual) { catActual = p.cat; html += `<div class="cat-titulo">${catActual}</div>`; }
-        html += `<div class="producto-card">
-            <div style="display:flex; justify-content:space-between"><b>${p.nom}</b><b style="color:var(--verde)">$${p.pre}</b></div>
-            <p style="font-size:11px; color:#777; margin:5px 0">${p.desc}</p>
-            <textarea id="nota-${i}" placeholder="¿Sin cebolla? ¿Más salado?..."></textarea>
-            <button onclick="agregarAlCarrito(${i})">AGREGAR</button>
-        </div>`;
-    });
-    document.getElementById('lista-menu').innerHTML = html;
-}
+       
+        if (p.visible === false) return; 
 
+        
+        if (p.cat !== catActual) { 
+            catActual = p.cat; 
+            html += `<div class="cat-titulo">${catActual}</div>`; 
+        }
+
+        
+        html += `
+            <div class="producto-card">
+                <div class="info">
+                    <div class="nombre">${p.nom}</div>
+                    <div class="descripcion">${p.desc || ''}</div>
+                </div>
+                <div class="precio-accion">
+                    <span class="precio">$${p.pre}</span>
+                    <button onclick="agregarAlCarrito(${i})">+</button>
+                </div>
+            </div>
+        `;
+    });
+
+    document.getElementById('contenedor-menu').innerHTML = html;
+}
 function agregarAlCarrito(i) {
     const p = catalogo[i];
     const nota = document.getElementById(`nota-${i}`).value;
@@ -222,7 +228,6 @@ function cancelarPorCliente() {
     }
 }
 
-// --- LÓGICA ADMINISTRACIÓN (CARLOS) ---
 function entrarCarlos() {
     if(prompt("Código Admin:") === "antojitos2026") {
         irSeccion('p-carlos');
@@ -277,13 +282,25 @@ function toggleBox(id) {
 function renderEditor() {
     let h = "";
     catalogo.forEach((p, i) => {
-        h += `<div style="border-bottom:1px solid #333; padding:10px">
+       
+        const colorBtn = p.visible !== false ? 'var(--verde)' : '#555';
+        const textoBtn = p.visible !== false ? 'PÚBLICO' : 'OCULTO';
+
+        h += `<div style="border-bottom:1px solid #333; padding:10px; position:relative">
+            <button onclick="toggleVisible(${i})" style="width:80px; font-size:10px; background:${colorBtn}; position:absolute; right:10px; top:10px">${textoBtn}</button>
             <input type="text" value="${p.nom}" onchange="catalogo[${i}].nom=this.value; updateDB()">
-            <textarea onchange="catalogo[${i}].desc=this.value; updateDB()">${p.desc || ''}</textarea>
+            <textarea placeholder="Descripción" onchange="catalogo[${i}].desc=this.value; updateDB()">${p.desc || ''}</textarea>
             <input type="number" value="${p.pre}" onchange="catalogo[${i}].pre=Number(this.value); updateDB()">
         </div>`;
     });
     document.getElementById('editor-lista').innerHTML = h;
+}
+
+
+function toggleVisible(i) {
+    catalogo[i].visible = catalogo[i].visible === false ? true : false;
+    updateDB();
+    renderEditor();
 }
 function nuevaPromo() {
     catalogo.unshift({cat:'PROMOCIONES', nom:'Nueva Promo', pre:0, desc:'Editar descripción'});

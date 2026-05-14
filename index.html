@@ -279,12 +279,12 @@ function renderEditor() {
     catalogo.forEach((p, i) => {
         h += `<div style="border-bottom:1px solid #333; padding:10px">
             <input type="text" value="${p.nom}" onchange="catalogo[${i}].nom=this.value; updateDB()">
+            <textarea onchange="catalogo[${i}].desc=this.value; updateDB()">${p.desc || ''}</textarea>
             <input type="number" value="${p.pre}" onchange="catalogo[${i}].pre=Number(this.value); updateDB()">
         </div>`;
     });
     document.getElementById('editor-lista').innerHTML = h;
 }
-
 function nuevaPromo() {
     catalogo.unshift({cat:'PROMOCIONES', nom:'Nueva Promo', pre:0, desc:'Editar descripción'});
     renderEditor();

@@ -89,183 +89,210 @@
 </div>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+     const firebaseConfig = {
+  apiKey: "AIzaSyDpndWo-syEwXo__nBs-aD6rtDSTY36YCY",
+  authDomain: "antojitosweb.firebaseapp.com",
+  databaseURL: "https://antojitosweb-default-rtdb.firebaseio.com",
+  projectId: "antojitosweb",
+  storageBucket: "antojitosweb.firebasestorage.app",
+  messagingSenderId: "1018883428835",
+  appId: "1:1018883428835:web:bdb0f3b658ba3121a010d6",
+  measurementId: "G-HSV7MGM4FM"
+};
 
-    // MENÚ TOTAL DESDE LAS FOTOS (catalogo_7.jpeg y unnamed.jpg1_6.jpg)
-    let catalogo = [
-        {cat:'POLLO A LA BROASTER', nom:'1 pieza de pollo', pre:8000, desc:'ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'2 piezas de pollo', pre:12000, desc:'ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'3 piezas de pollo', pre:16000, desc:'ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'4 piezas de pollo', pre:21000, desc:'ensalada, papa a la francesa'},
-        {cat:'POLLO A LA BROASTER', nom:'8 piezas de pollo', pre:40000, desc:'ensalada, papa a la francesa'},
-        {cat:'SALCHIPAPA', nom:'Salchipapa "Ta bien"', pre:8000, desc:'papa francesa, salchicha, vegetales, queso'},
-        {cat:'SALCHIPAPA', nom:'Salchipapa "Gustico"', pre:13000, desc:'papa francesa, salchicha, vegetales, queso, tocineta, porcion mixta de carne y pollo'},
-        {cat:'SALCHIPAPA', nom:'Salchipapa "Súper antojitos"', pre:19000, desc:'papa francesa, salchicha, vegetales, queso, dos porciones de proteina, tocineta'},
-        {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Carne)', pre:6000, desc:'pan, croqueta de carne, vegetales, papita, queso, salsa'},
-        {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Pollo)', pre:7000, desc:'pan, pollo, vegetales, papita, queso, salsa'},
-        {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Mechada)', pre:8000, desc:'pan, carne mechada, vegetales, papita, queso, salsa'},
-        {cat:'HAMBURGUESAS', nom:'Hamburguesa "Antojitos"', pre:9000, desc:'pan, carne mechada, vegetales, papita, salsa, huevo, tocineta, jamon'},
-        {cat:'HAMBURGUESAS', nom:'Hamburguesa "Momo"', pre:13000, desc:'pan, dos porciones de carne o pollo, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamon'},
-        {cat:'HAMBURGUESAS', nom:'Hamburguesa "Trifásica"', pre:19000, desc:'pan, pollo, chuleta, carne, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamon, salsas'},
-        {cat:'PERROS', nom:'Perro hambruno', pre:5000, desc:'pan, salchicha, papitas, queso, salsas, vegetales'},
-        {cat:'PERROS', nom:'Perro especial', pre:9000, desc:'pan, salchicha, papitas, queso, salsas, carne desmechada o pollo desmechado, vegetales, jamón'},
-        {cat:'PERROS', nom:'Perro americano', pre:13000, desc:'pan, salchicha, papitas, salsas, dos proteinas, tocino, jamon, vegetales'}
-    ];
+// Inicialización
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-    let carrito = [], audioActivado = false, miPedidoID = null, timerCancel = null, conteoPedidosPrevio = -1;
+// Menú base (se usará si la base de datos está vacía la primera vez)
+let catalogo = [
+    {cat:'POLLO A LA BROASTER', nom:'1 pieza de pollo', pre:8000, desc:'ensalada, papa a la francesa'},
+    {cat:'POLLO A LA BROASTER', nom:'2 piezas de pollo', pre:12000, desc:'ensalada, papa a la francesa'},
+    {cat:'POLLO A LA BROASTER', nom:'3 piezas de pollo', pre:16000, desc:'ensalada, papa a la francesa'},
+    {cat:'POLLO A LA BROASTER', nom:'4 piezas de pollo', pre:21000, desc:'ensalada, papa a la francesa'},
+    {cat:'POLLO A LA BROASTER', nom:'8 piezas de pollo', pre:40000, desc:'ensalada, papa a la francesa'},
+    {cat:'SALCHIPAPA', nom:'Salchipapa "Ta bien"', pre:8000, desc:'papa francesa, salchicha, vegetales, queso'},
+    {cat:'SALCHIPAPA', nom:'Salchipapa "Gustico"', pre:13000, desc:'papa francesa, salchicha, vegetales, queso, tocineta, porcion mixta de carne y pollo'},
+    {cat:'SALCHIPAPA', nom:'Salchipapa "Súper antojitos"', pre:19000, desc:'papa francesa, salchicha, vegetales, queso, dos porciones de proteina, tocineta'},
+    {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Carne)', pre:6000, desc:'pan, croqueta de carne, vegetales, papita, queso, salsa'},
+    {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Pollo)', pre:7000, desc:'pan, pollo, vegetales, papita, queso, salsa'},
+    {cat:'HAMBURGUESAS', nom:'Hamburguesa Mini (Mechada)', pre:8000, desc:'pan, carne mechada, vegetales, papita, queso, salsa'},
+    {cat:'HAMBURGUESAS', nom:'Hamburguesa "Antojitos"', pre:9000, desc:'pan, carne mechada, vegetales, papita, salsa, huevo, tocineta, jamon'},
+    {cat:'HAMBURGUESAS', nom:'Hamburguesa "Momo"', pre:13000, desc:'pan, dos porciones de carne o pollo, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamon'},
+    {cat:'HAMBURGUESAS', nom:'Hamburguesa "Trifásica"', pre:19000, desc:'pan, pollo, chuleta, carne, queso tajado, huevo, aguacate, vegetales, papita, tocineta, jamon, salsas'},
+    {cat:'PERROS', nom:'Perro hambruno', pre:5000, desc:'pan, salchicha, papitas, queso, salsas, vegetales'},
+    {cat:'PERROS', nom:'Perro especial', pre:9000, desc:'pan, salchicha, papitas, queso, salsas, carne desmechada o pollo desmechado, vegetales, jamón'},
+    {cat:'PERROS', nom:'Perro americano', pre:13000, desc:'pan, salchicha, papitas, salsas, dos proteinas, tocino, jamon, vegetales'}
+];
 
-    function hablar(msj) {
-        if(audioActivado) {
-            const u = new SpeechSynthesisUtterance(msj);
-            u.lang = 'es-ES';
-            window.speechSynthesis.speak(u);
+let carrito = [], audioActivado = false, miPedidoID = null, timerCancel = null, conteoPedidosPrevio = -1;
+
+// --- FUNCIONES DE CARGA ---
+
+// Escuchar cambios en el menú en tiempo real
+db.ref('config/menu').on('value', (snap) => {
+    if(snap.exists()) {
+        catalogo = snap.val();
+        if(document.getElementById('p-menu').classList.contains('activa')) {
+            renderizarMenu();
         }
+    } else {
+        // Si la DB está vacía, subimos el catálogo inicial
+        db.ref('config/menu').set(catalogo);
     }
+});
 
-    function irSeccion(id) {
-        document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
-        document.getElementById(id).classList.add('activa');
+function hablar(msj) {
+    if(audioActivado) {
+        const u = new SpeechSynthesisUtterance(msj);
+        u.lang = 'es-ES';
+        window.speechSynthesis.speak(u);
     }
+}
 
-    function iniciarCliente() {
-        if(!document.getElementById('nombre-usuario').value) return alert("Ingresa tu nombre");
-        audioActivado = true;
-        document.getElementById('saludo-h').innerText = "BIENVENIDO, " + document.getElementById('nombre-usuario').value.toUpperCase();
-        irSeccion('p-menu');
-        renderizarMenu();
-    }
+function irSeccion(id) {
+    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+    document.getElementById(id).classList.add('activa');
+}
 
-    function renderizarMenu() {
-        let html = "", catActual = "";
-        catalogo.forEach((p, i) => {
-            if(p.cat !== catActual) { catActual = p.cat; html += `<div class="cat-titulo">${catActual}</div>`; }
-            html += `<div class="producto-card">
-                <div style="display:flex; justify-content:space-between"><b>${p.nom}</b><b style="color:var(--verde)">$${p.pre}</b></div>
-                <p style="font-size:11px; color:#777; margin:5px 0">${p.desc}</p>
-                <textarea id="nota-${i}" placeholder="Ej: Sin cebolla, más salado..."></textarea>
-                <button onclick="agregarAlCarrito(${i})">AGREGAR</button>
-            </div>`;
-        });
-        document.getElementById('lista-menu').innerHTML = html;
-    }
+function iniciarCliente() {
+    if(!document.getElementById('nombre-usuario').value) return alert("Ingresa tu nombre");
+    audioActivado = true;
+    document.getElementById('saludo-h').innerText = "BIENVENIDO, " + document.getElementById('nombre-usuario').value.toUpperCase();
+    irSeccion('p-menu');
+    renderizarMenu();
+}
 
-    function agregarAlCarrito(i) {
-        const p = catalogo[i];
-        const nota = document.getElementById(`nota-${i}`).value;
-        carrito.push({ nombre: p.nom, precio: Number(p.pre), nota: nota });
-        document.getElementById('monto-total').innerText = carrito.reduce((a, b) => a + b.precio, 0).toLocaleString();
-        document.getElementById(`nota-${i}`).value = "";
-    }
+function renderizarMenu() {
+    let html = "", catActual = "";
+    catalogo.forEach((p, i) => {
+        if(p.cat !== catActual) { catActual = p.cat; html += `<div class="cat-titulo">${catActual}</div>`; }
+        html += `<div class="producto-card">
+            <div style="display:flex; justify-content:space-between"><b>${p.nom}</b><b style="color:var(--verde)">$${p.pre}</b></div>
+            <p style="font-size:11px; color:#777; margin:5px 0">${p.desc}</p>
+            <textarea id="nota-${i}" placeholder="¿Sin cebolla? ¿Más salado?..."></textarea>
+            <button onclick="agregarAlCarrito(${i})">AGREGAR</button>
+        </div>`;
+    });
+    document.getElementById('lista-menu').innerHTML = html;
+}
 
-    function enviarPedido() {
-        if(!carrito.length) return;
-        const nuevo = db.ref('pedidos').push({
-            cliente: document.getElementById('nombre-usuario').value,
-            items: carrito, total: carrito.reduce((a, b) => a + b.precio, 0),
-            estado: 'pendiente', hora: Date.now(), fecha: new Date().toLocaleDateString()
-        });
-        miPedidoID = nuevo.key;
-        
-        document.getElementById('barra-pedido').style.display = 'none';
-        document.getElementById('lista-menu').style.display = 'none';
-        document.getElementById('area-seguimiento').style.display = 'block';
+function agregarAlCarrito(i) {
+    const p = catalogo[i];
+    const nota = document.getElementById(`nota-${i}`).value;
+    carrito.push({ nombre: p.nom, precio: Number(p.pre), nota: nota });
+    document.getElementById('monto-total').innerText = carrito.reduce((a, b) => a + b.precio, 0).toLocaleString();
+    document.getElementById(`nota-${i}`).value = "";
+}
 
-        let seg = 60;
-        const btnC = document.getElementById('btn-cancelar-60');
-        timerCancel = setInterval(() => {
-            seg--;
-            btnC.innerText = `CANCELAR PEDIDO (${seg}s)`;
-            if(seg <= 0) { clearInterval(timerCancel); btnC.style.display = 'none'; }
-        }, 1000);
+function enviarPedido() {
+    if(!carrito.length) return;
+    const nuevo = db.ref('pedidos').push({
+        cliente: document.getElementById('nombre-usuario').value,
+        items: carrito, total: carrito.reduce((a, b) => a + b.precio, 0),
+        estado: 'pendiente', hora: Date.now(), fecha: new Date().toLocaleDateString()
+    });
+    miPedidoID = nuevo.key;
+    
+    document.getElementById('barra-pedido').style.display = 'none';
+    document.getElementById('lista-menu').style.display = 'none';
+    document.getElementById('area-seguimiento').style.display = 'block';
 
-        db.ref('pedidos/' + miPedidoID).on('value', snap => {
-            const p = snap.val();
-            if(p?.estado === 'listo') {
-                hablar("Tu pedido en Antojitos ya está listo, puedes retirarlo.");
-                document.getElementById('texto-seguimiento').innerHTML = "<h2 style='color:var(--verde)'>¡PEDIDO LISTO! ✅</h2>";
-                btnC.style.display = 'none';
-            }
-        });
-    }
+    let seg = 60;
+    const btnC = document.getElementById('btn-cancelar-60');
+    timerCancel = setInterval(() => {
+        seg--;
+        btnC.innerText = `CANCELAR PEDIDO (${seg}s)`;
+        if(seg <= 0) { clearInterval(timerCancel); btnC.style.display = 'none'; }
+    }, 1000);
 
-    function cancelarPorCliente() {
-        if(confirm("¿Seguro que deseas cancelar?")) {
-            db.ref('pedidos/' + miPedidoID).update({ estado: 'cancelado_cliente' });
-            location.reload();
+    db.ref('pedidos/' + miPedidoID).on('value', snap => {
+        const p = snap.val();
+        if(p?.estado === 'listo') {
+            hablar("Tu pedido en Antojitos ya está listo, puedes retirarlo.");
+            document.getElementById('texto-seguimiento').innerHTML = "<h2 style='color:var(--verde)'>¡PEDIDO LISTO! ✅</h2>";
+            btnC.style.display = 'none';
         }
+    });
+}
+
+function cancelarPorCliente() {
+    if(confirm("¿Seguro que deseas cancelar?")) {
+        db.ref('pedidos/' + miPedidoID).update({ estado: 'cancelado_cliente' });
+        location.reload();
     }
+}
 
-    // LÓGICA CARLOS
-    function entrarCarlos() {
-        if(prompt("Código Admin:") === "antojitos2026") {
-            irSeccion('p-carlos');
-            db.ref('pedidos').on('value', snap => {
-                const cont = document.getElementById('pedidos-carlos');
-                let ventasTotal = 0, hoy = new Date().toLocaleDateString(), cuentaPendientes = 0;
-                cont.innerHTML = "";
-                
-                snap.forEach(h => {
-                    const p = h.val();
-                    if(p.fecha === hoy && p.estado === 'listo') ventasTotal += p.total;
-                    if(p.estado === 'pendiente') {
-                        cuentaPendientes++;
-                        cont.innerHTML += `<div class="ticket-carlos">
-                            <b>CLIENTE: ${p.cliente.toUpperCase()}</b><hr>
-                            ${p.items.map(it => `• ${it.nombre} <br><small style="color:blue">Nota: ${it.nota || 'Sin nota'}</small>`).join('<br>')}
-                            <button onclick="marcarListo('${h.key}')" style="background:var(--verde); color:white; margin-top:10px">PEDIDO LISTO ✅</button>
-                        </div>`;
-                    }
-                    if(p.estado === 'cancelado_cliente') {
-                        hablar("Carlos, un pedido ha sido cancelado.");
-                        db.ref('pedidos/'+h.key).remove();
-                    }
-                });
-
-                if(conteoPedidosPrevio !== -1 && cuentaPendientes > conteoPedidosPrevio) {
-                    hablar("Carlos, tienes un nuevo pedido.");
+// --- LÓGICA ADMINISTRACIÓN (CARLOS) ---
+function entrarCarlos() {
+    if(prompt("Código Admin:") === "antojitos2026") {
+        irSeccion('p-carlos');
+        db.ref('pedidos').on('value', snap => {
+            const cont = document.getElementById('pedidos-carlos');
+            let ventasTotal = 0, hoy = new Date().toLocaleDateString(), cuentaPendientes = 0;
+            cont.innerHTML = "";
+            
+            snap.forEach(h => {
+                const p = h.val();
+                if(p.fecha === hoy && p.estado === 'listo') ventasTotal += p.total;
+                if(p.estado === 'pendiente') {
+                    cuentaPendientes++;
+                    cont.innerHTML += `<div class="ticket-carlos">
+                        <b>CLIENTE: ${p.cliente.toUpperCase()}</b><hr>
+                        ${p.items.map(it => `• ${it.nombre} <br><small style="color:blue">Nota: ${it.nota || 'Sin nota'}</small>`).join('<br>')}
+                        <button onclick="marcarListo('${h.key}')" style="background:var(--verde); color:white; margin-top:10px">PEDIDO LISTO ✅</button>
+                    </div>`;
                 }
-                conteoPedidosPrevio = cuentaPendientes;
-                document.getElementById('ventas-acumuladas').innerText = "$" + ventasTotal.toLocaleString();
+                if(p.estado === 'cancelado_cliente') {
+                    hablar("Carlos, un pedido ha sido cancelado.");
+                    db.ref('pedidos/'+h.key).remove();
+                }
             });
-        }
-    }
 
-    function marcarListo(id) {
-        db.ref('pedidos/' + id).update({ estado: 'listo' });
-        hablar("Pedido marcado como listo.");
-    }
-
-    function activarVozSistema() { 
-        audioActivado = true; 
-        hablar("Sistema de voz activado para Carlos.");
-        document.getElementById('btn-voz-carlos').style.background = "#2ecc71";
-    }
-
-    function toggleBox(id) { 
-        const d = document.getElementById(id); 
-        d.style.display = d.style.display === 'none' ? 'block' : 'none'; 
-        if(d.style.display === 'block') renderEditor();
-    }
-
-    function renderEditor() {
-        let h = "";
-        catalogo.forEach((p, i) => {
-            h += `<div style="border-bottom:1px solid #333; padding:10px">
-                <input type="text" value="${p.nom}" onchange="catalogo[${i}].nom=this.value; updateDB()">
-                <input type="number" value="${p.pre}" onchange="catalogo[${i}].pre=Number(this.value); updateDB()">
-            </div>`;
+            if(conteoPedidosPrevio !== -1 && cuentaPendientes > conteoPedidosPrevio) {
+                hablar("Carlos, tienes un nuevo pedido.");
+            }
+            conteoPedidosPrevio = cuentaPendientes;
+            document.getElementById('ventas-acumuladas').innerText = "$" + ventasTotal.toLocaleString();
         });
-        document.getElementById('editor-lista').innerHTML = h;
     }
+}
 
-    function nuevaPromo() {
-        catalogo.unshift({cat:'PROMOCIONES', nom:'Nueva Promo', pre:0, desc:'Editar descripción', visible:true});
-        renderEditor();
-    }
+function marcarListo(id) {
+    db.ref('pedidos/' + id).update({ estado: 'listo' });
+    hablar("Pedido marcado como listo.");
+}
 
-    function updateDB() { db.ref('config/menu').set(catalogo); }
+function activarVozSistema() { 
+    audioActivado = true; 
+    hablar("Sistema de voz activado para Carlos.");
+    document.getElementById('btn-voz-carlos').style.background = "#2ecc71";
+}
+
+function toggleBox(id) { 
+    const d = document.getElementById(id); 
+    d.style.display = d.style.display === 'none' ? 'block' : 'none'; 
+    if(d.style.display === 'block') renderEditor();
+}
+
+function renderEditor() {
+    let h = "";
+    catalogo.forEach((p, i) => {
+        h += `<div style="border-bottom:1px solid #333; padding:10px">
+            <input type="text" value="${p.nom}" onchange="catalogo[${i}].nom=this.value; updateDB()">
+            <input type="number" value="${p.pre}" onchange="catalogo[${i}].pre=Number(this.value); updateDB()">
+        </div>`;
+    });
+    document.getElementById('editor-lista').innerHTML = h;
+}
+
+function nuevaPromo() {
+    catalogo.unshift({cat:'PROMOCIONES', nom:'Nueva Promo', pre:0, desc:'Editar descripción'});
+    renderEditor();
+    updateDB();
+}
+
+function updateDB() { db.ref('config/menu').set(catalogo); }
 </script>
 </body>
 </html>

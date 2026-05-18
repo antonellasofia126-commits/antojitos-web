@@ -4,14 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antojitos</title>
+    <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/jpeg" sizes="192x192" href="icon.jpg">
+<link rel="icon" type="image/jpeg" sizes="512x512" href="icon.jpg">
+<link rel="apple-touch-icon" href="icon.jpg">
+
+<link rel="manifest" href="manifest.json">
+
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Antojitos">
+<meta name="theme-color" content="#000000">
     <meta name="google-site-verification" content="VSZPXOEtAUgP3MLla9kXNxPd7Ga2EcecufhXqHel_ls" />
     <meta name="description" content="Sistema de pedidos de Antojitos - Comida rápida.">
     <meta name="keywords" content="Antojitos, pedidos, comida rapida, UPTAIT, Carlos, hamburguesas, pollo broaster">
     <meta name="author" content="JACKSON GAMEZ">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+   
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 
@@ -35,18 +43,22 @@
 <body>
 
 <div class="container">
-
-    <div id="p-inicio" class="seccion activa">
-        <h1 style="text-align:center; margin-top:100px; letter-spacing:4px">ANTOJITOS</h1>
-        <button onclick="irSeccion('p-login')">INGRESAR COMO CLIENTE</button>
-        <button style="background:none; color:white; border:1px solid #333; margin-top:40px" onclick="entrarCarlos()">ADMINISTRACIÓN (CARLOS)</button>
+    
+ <div id="p-inicio" class="seccion activa">
+    <div style="text-align:center; margin-top:50px;">
+        <img src="https://i.ibb.co/d4TdRtBk/logo.jpg?v=final" 
+             alt="Logo Antojitos" 
+             style="width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 3px solid #ffcc00; display: block; margin: 0 auto;">
+        
+        <h1 style="letter-spacing:4px; margin-top:20px">ANTOJITOS</h1>
     </div>
     
-    <div id="p-login" class="seccion">
-        <h1>TU NOMBRE</h1>
-        <input type="text" id="nombre-usuario" placeholder="¿Quién pide?">
-        <button onclick="iniciarCliente()">VER MENÚ COMPLETO</button>
+    <div style="padding: 0 20px;">
+        <input type="text" id="nombre-usuario" placeholder="Tu Nombre para el pedido">
+        <button onclick="iniciarCliente()">INGRESAR COMO CLIENTE</button>
+        <button style="background:none; color:white; border:1px solid #333; margin-top:40px" onclick="entrarCarlos()">ADMINISTRACIÓN (CARLOS)</button>
     </div>
+</div>
 
     <div id="p-menu" class="seccion">
         <h2 id="saludo-h" style="color:white; text-align:center"></h2>

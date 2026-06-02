@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Antojitos</title>
     <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/jpeg" sizes="192x192" href="icon.jpg">
-<link rel="icon" type="image/jpeg" sizes="512x512" href="icon.jpg">
-<link rel="apple-touch-icon" href="icon.jpg">
+    <link rel="shortcut icon" href="icon.jpg">
+    <link rel="icon" type="image/jpeg" sizes="192x192" href="icon.jpg">
+    <link rel="icon" type="image/jpeg" sizes="512x512" href="icon.jpg">
+    <link rel="apple-touch-icon" href="icon.jpg">
 
-<link rel="manifest" href="manifest.json">
-
-<meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Antojitos">
 <meta name="theme-color" content="#000000">
@@ -131,6 +130,7 @@ let catalogo = [
 ];
 
 let carrito = [], audioActivado = false, miPedidoID = null, timerCancel = null, conteoPedidosPrevio = -1;
+const btnVozCarlos = document.getElementById('btn-voz-carlos');
 
 db.ref('config/menu').on('value', (snap) => {
     if(snap.exists()) {
@@ -240,6 +240,7 @@ function enviarPedido() {
 }
 
 function cancelarPorCliente() {
+    if (!miPedidoID) return;
     if(confirm("¿Seguro que deseas cancelar?")) {
         db.ref('pedidos/' + miPedidoID).update({ estado: 'cancelado_cliente' });
         location.reload();
@@ -249,6 +250,18 @@ function cancelarPorCliente() {
 function entrarCarlos() {
     if(prompt("Código Admin:") === "antojitos2026") {
         irSeccion('p-carlos');
+        // Mostrar el botón de activar voz solo si el sistema de audio NO está activado.
+        const btnV = document.getElementById('btn-voz-carlos');
+        if (btnV) {
+            if (!audioActivado) {
+                btnV.style.display = 'block';
+                btnV.style.background = '#333';
+                btnV.style.color = 'white';
+            } else {
+                // Si ya está activado, mantener el botón oculto hasta cerrar sesión
+                btnV.style.display = 'none';
+            }
+        }
         db.ref('pedidos').on('value', snap => {
             const cont = document.getElementById('pedidos-carlos');
             let ventasTotal = 0, hoy = new Date().toLocaleDateString(), cuentaPendientes = 0;
@@ -288,7 +301,10 @@ function marcarListo(id) {
 function activarVozSistema() { 
     audioActivado = true; 
     hablar("Sistema de voz activado para Carlos.");
-    document.getElementById('btn-voz-carlos').style.background = "#2ecc71";
+    if (btnVozCarlos) {
+        btnVozCarlos.style.background = "#2ecc71";
+        btnVozCarlos.style.display = 'none';
+    }
 }
 
 function toggleBox(id) { 
